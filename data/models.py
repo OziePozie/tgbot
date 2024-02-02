@@ -22,10 +22,17 @@ class Auto(Base):
 
 
 class WorkType(BaseEnum):
-    Master = "Мастер"
-    Electrician = "Электромонтер"
-    Tester = "Испытатель"
-    AUR = "Аур(ИТР)"
+    Master = "master"
+    Electrician = "electrician"
+    Tester = "tester"
+    AUR = "aur"
+
+    @classmethod
+    def get_by_value(cls, value):
+        for enum_item in cls:
+            if enum_item.value == value:
+                return enum_item
+        raise ValueError(f"'{value}' is not among the defined enum values.")
 
 
 class Workers(Base):
@@ -34,5 +41,3 @@ class Workers(Base):
     id = Column(Integer, primary_key=True)
     work_type = Column(Enum(WorkType))
     name = Column(String)
-    lastname = Column(String)
-    surname = Column(String)
