@@ -1,8 +1,9 @@
 import asyncio
 from config import bot, dp
 import logging
+
 from handlers.user.main import router as main_router
-from handlers.user.level2 import router as level_2_router
+
 
 
 async def main():
@@ -10,8 +11,11 @@ async def main():
         level=logging.INFO
     )
     await bot.delete_webhook(drop_pending_updates=True)
+
+
     dp.include_router(main_router)
     dp.include_router(level_2_router)
+
     await dp.start_polling(bot)
 
 
