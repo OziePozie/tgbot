@@ -11,6 +11,8 @@ from config import db_session
 from data.models import Workers, WorkType
 
 router = Router()
+
+
 @router.callback_query(F.data.startswith('put'))
 async def workers_update(call: types.CallbackQuery, state: FSMContext):
     message_data = call.data.split('_')
@@ -38,6 +40,7 @@ class FioUpdate(StatesGroup):
     name = State()
     id = State()
 
+
 @router.callback_query(F.data.startswith('update_fio'))
 async def fio_update(call: types.CallbackQuery, state: FSMContext):
     message_data = call.data.split('_')
@@ -45,7 +48,6 @@ async def fio_update(call: types.CallbackQuery, state: FSMContext):
     await state.update_data(id=id)
     await call.message.edit_text("Введите Ф.И.О")
     await state.set_state(FioUpdate.name)
-
 
 
 @router.message(FioUpdate.name)
@@ -57,7 +59,6 @@ async def fio_update_state(message: Message, state: FSMContext):
     worker.name = message.text
     db_session.commit()
     await message.edit_text("Успешное изменение")
-
 
 
 @router.callback_query(F.data.startswith('update_profession'))
@@ -78,7 +79,6 @@ async def profession_update(call: types.CallbackQuery, state: FSMContext):
                                  reply_markup=markup)
 
 
-
 @router.callback_query(F.data.startswith('profession'))
 async def profession_update_state(call: types.CallbackQuery):
     callback_data = call.data.split('_')
@@ -86,6 +86,7 @@ async def profession_update_state(call: types.CallbackQuery):
     worker.work_type = WorkType.get_by_value(callback_data[1])
     db_session.commit()
     await call.message.edit_text("Успешное изменение")
+
 
 def generate_employee_keyboard():
     markup = InlineKeyboardBuilder()
