@@ -3,6 +3,8 @@ from config import bot, dp
 import logging
 
 from handlers.user.main import router as main_router
+from handlers.admin.main import router as admin_router
+from handlers.user.level2 import router as level_2_router
 
 
 
@@ -12,7 +14,7 @@ async def main():
     )
     await bot.delete_webhook(drop_pending_updates=True)
 
-
+    dp.include_router(admin_router)
     dp.include_router(main_router)
     dp.include_router(level_2_router)
 
