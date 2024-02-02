@@ -6,9 +6,10 @@ router = Router()
 
 @router.callback_query(F.data == "performance_report")
 async def list_work(call: types.CallbackQuery):
-    await call.message.edit_text("text", reply_markup=performance_report_markup())
+    await call.message.edit_text("Выберите объект", reply_markup=performance_report_markup())
 
 
+@router.callback_query()
 @router.callback_query(F.text == "autocran")
 async def autocran(call: types.CallbackQuery):
     pass

@@ -29,5 +29,7 @@ def performance_report_markup():
         builder.button(
             text=d[1], callback_data=CallbackObjectData(action=str(d[0]))
         )
+    builder.adjust(1)
+    print(builder.as_markup())
     return builder.as_markup()
 

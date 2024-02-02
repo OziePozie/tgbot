@@ -1,6 +1,8 @@
 from sqlalchemy import Integer, String, Boolean, Column, Enum
-from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy.orm import declarative_base
 from enum import Enum as BaseEnum
+
+
 Base = declarative_base()
 
 
