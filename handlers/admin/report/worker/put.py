@@ -18,7 +18,7 @@ async def workers_update(call: types.CallbackQuery, state: FSMContext):
     message_data = call.data.split('_')
     print(message_data)
     await call.message.edit_text("Выберите сотрудника",
-                                 reply_markup=generate_employee_keyboard())
+                                 reply_markup=generate_employee_keyboard(WorkType.get_by_value(message_data[1])))
 
 
 @router.callback_query(F.data.startswith('update_employee'))
@@ -58,7 +58,13 @@ async def fio_update_state(message: Message, state: FSMContext):
               .first())
     worker.name = message.text
     db_session.commit()
-    await message.edit_text("Успешное изменение")
+    keyboard = [
+        [InlineKeyboardButton(text=f"Вернуться на главную", callback_data="back_main")]
+    ]
+    markup = InlineKeyboardMarkup(inline_keyboard=keyboard)
+
+    await message.reply(text="Успешное изменение. Выберите действие",
+                                 reply_markup=markup)
 
 
 @router.callback_query(F.data.startswith('update_profession'))
@@ -85,12 +91,19 @@ async def profession_update_state(call: types.CallbackQuery):
     worker = db_session.query(Workers).filter(Workers.id == callback_data[2]).first()
     worker.work_type = WorkType.get_by_value(callback_data[1])
     db_session.commit()
-    await call.message.edit_text("Успешное изменение")
+
+    keyboard = [
+        [InlineKeyboardButton(text=f"Вернуться на главную", callback_data="back_main")]
+    ]
+    markup = InlineKeyboardMarkup(inline_keyboard=keyboard)
+
+    await call.message.edit_text("Успешное изменение. Выберите действие",
+                                 reply_markup=markup)
 
 
-def generate_employee_keyboard():
+def generate_employee_keyboard(worktype):
     markup = InlineKeyboardBuilder()
-    employees = db_session.query(Workers.name, Workers.id).all()
+    employees = db_session.query(Workers.name, Workers.id).filter(Workers.work_type == worktype).all()
     print(employees)
     for employee_name, employee_id in employees:
         markup.button(
