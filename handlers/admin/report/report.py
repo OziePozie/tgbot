@@ -5,11 +5,13 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQu
 from .worker.put import router as put_router
 from .worker.add import router as add_router
 from .worker.delete import router as delete_router
+from .object.object import router as object_router
 
 report_router = Router()
 report_router.include_router(put_router)
 report_router.include_router(add_router)
 report_router.include_router(delete_router)
+report_router.include_router(object_router)
 
 
 @report_router.callback_query(F.data == 'report')

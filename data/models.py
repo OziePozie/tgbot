@@ -11,6 +11,7 @@ class Object(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String)
+    tg_link = Column(String)
 
 
 class Auto(Base):
@@ -19,6 +20,7 @@ class Auto(Base):
     id = Column(Integer, primary_key=True)
     isOOO = Column(Boolean)
     isHeavy = Column(Boolean)
+    tg_link = Column(String)
 
 
 class WorkType(BaseEnum):
