@@ -18,6 +18,7 @@ class Auto(Base):
     __tablename__ = 'auto'
 
     id = Column(Integer, primary_key=True)
+    name = Column(String)
     isOOO = Column(Boolean)
     isHeavy = Column(Boolean)
     tg_link = Column(String)
