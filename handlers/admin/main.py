@@ -30,6 +30,11 @@ async def admin(message: types.Message):
     await message.answer("Добро пожаловать", reply_markup=main())
 
 
+@router.callback_query(F.data == "back_main")
+async def back_main(call: types.CallbackQuery):
+    await call.message.edit_text("Добро пожаловать", reply_markup=main())
+
+
 @router.callback_query(F.data == 'report')
 async def report(call: types.CallbackQuery):
     keyboard = [
@@ -139,5 +144,10 @@ async def add_worker(message: Message, state: FSMContext):
     worker = Workers(name=message.text, work_type=user_data['profession'])
     db_session.add(worker)
     db_session.commit()
+    keyboard = [
+        [InlineKeyboardButton(text=f"Вернуться на главную", callback_data="back_main")]
+    ]
+    markup = InlineKeyboardMarkup(inline_keyboard=keyboard)
 
-
+    await message.reply(text="Успешное добавление. Выберите действие",
+                        reply_markup=markup)
