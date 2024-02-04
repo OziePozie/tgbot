@@ -69,8 +69,8 @@ async def workers(call: types.CallbackQuery):
     ]
 
     markup = InlineKeyboardMarkup(inline_keyboard=keyboard)
-
     await call.message.edit_text("Выберите действие", reply_markup=markup)
+
 
 
 @router.callback_query(F.data == 'add')
