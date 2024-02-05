@@ -1,9 +1,8 @@
 from aiogram import Router, F, types
 from aiogram.fsm.context import FSMContext
-from aiogram.types import ContentType
 from context.user.main_context import OtherExpenses
 from keyboard.user.main import workers_callback_markup, CallbackWorkersData, performance_report_markup, \
-    CallbackObjectData
+    CallbackObjectData, main
 from config import bot
 
 router = Router()
@@ -11,7 +10,7 @@ router = Router()
 
 @router.callback_query(F.data == "other_expenses")
 async def other_expenses(call: types.CallbackQuery, state: FSMContext):
-    await call.message.edit_text("Выбор Ф.И.О. членов бригады", reply_markup=workers_callback_markup())
+    await call.message.edit_text("Выбор Ф.И.О. мастера", reply_markup=workers_callback_markup())
     await state.set_state(OtherExpenses.master)
 
 
@@ -53,4 +52,5 @@ async def check_photo(message: types.Message, state: FSMContext):
                                                      f"Наименование товара: {data['tovar_name']}\n"
                                                      f"Стоимость товара {data['tovar_price']} руб\n",
                            reply_to_message_id=photo_message.message_id)
+    await message.answer("Выполнено", reply_markup=main())
     await state.clear()

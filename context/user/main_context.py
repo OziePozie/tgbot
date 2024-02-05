@@ -26,3 +26,12 @@ class OtherExpenses(StatesGroup):
     photo_check = State()
 
 
+class Autocran(StatesGroup):
+    master = State()
+    object_name = State()
+    date = State()
+    price = State()
+    cart_number = State()
+    fio_cart = State()
+
+
