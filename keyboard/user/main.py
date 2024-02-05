@@ -4,7 +4,7 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeybo
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from config import db_session
 from aiogram.filters.callback_data import CallbackData
-from data.models import Object, Workers
+from data.models import Object, Workers, Travel_orders
 
 
 def main():
@@ -45,10 +45,16 @@ def workers_callback_markup():
     builder = InlineKeyboardBuilder()
     data = db_session.query(Workers.id, Workers.name).all()
 
+    users = {i[0] for i in db_session.query(Travel_orders.fio).all()}
+
     for d in data:
-        builder.button(
-            text=d[1], callback_data=CallbackWorkersData(data=d[1], action=str(d[0]))
-        )
+        check = [d[1]] if d[1] in users else []
+        if not check:
+            builder.button(
+                text=d[1], callback_data=CallbackWorkersData(data=d[1], action=str(d[0]))
+            )
+        else:
+            pass
     builder.adjust(1)
     return builder.as_markup()
 
@@ -64,4 +70,13 @@ def date_from():
 
     markup = ReplyKeyboardMarkup(keyboard=buttons)
 
+    return markup
+
+
+def add_person():
+    keyboard = [
+        [KeyboardButton(text="Еще добавить")],
+        [KeyboardButton(text='Закончить')]
+    ]
+    markup = ReplyKeyboardMarkup(keyboard=keyboard)
     return markup

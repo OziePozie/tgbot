@@ -7,3 +7,14 @@ class TravelOrdersReport(StatesGroup):
     worker_date_is = State()
     worker_date_to = State()
 
+
+class LivingOrders(StatesGroup):
+    master = State()
+    object_name = State()
+    worker_date_is = State()
+    worker_date_to = State()
+    price = State()
+    cart_number = State()
+    fio_cart = State()
+
+

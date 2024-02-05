@@ -13,7 +13,6 @@ class Object(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String)
     tg_link = Column(String)
-    traver_order = relationship('Travel_orders', back_populates='object')
 
 
 class Auto(Base):
@@ -53,13 +52,20 @@ class Travel_orders(Base):
 
     id = Column(Integer, primary_key=True)
     fio = Column(String)
+    object_name = Column(String)
     date_from = Column(String)
     date_to = Column(String)
     from_report = Column(Integer)
     is_order = Column(Boolean)
-    object_id = Column(
-        Integer,
-        ForeignKey('objects.id', ondelete='CASCADE')
-    )
-    object = relationship("Object", back_populates='traver_order')
+
+
+class Chats(Base):
+    __tablename__ = 'chats'
+
+    id = Column(Integer, primary_key=True)
+    chat_description = Column(String)
+    chat_link = Column(String)
+
+
+
 
