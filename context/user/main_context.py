@@ -18,3 +18,11 @@ class LivingOrders(StatesGroup):
     fio_cart = State()
 
 
+class OtherExpenses(StatesGroup):
+    master = State()
+    object_name = State()
+    tovar_name = State()
+    tovar_price = State()
+    photo_check = State()
+
+

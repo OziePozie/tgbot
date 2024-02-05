@@ -4,7 +4,7 @@ from aiogram.fsm.context import FSMContext
 from config import bot
 from context.user.main_context import LivingOrders
 from keyboard.user.main import performance_report_markup, CallbackWorkersData, CallbackObjectData, date_from, \
-    workers_callback_markup
+    workers_callback_markup, main
 
 
 router = Router()
@@ -65,4 +65,5 @@ async def living_price(message: types.Message, state: FSMContext):
     await bot.send_message(chat_id=-4104881167, text=f"Прошу перевести {data['price']} за квартиру.\n"
                                                      f"Объект - {data['object_name']}, по номеру {data['cart_number']}\n"
                                                      f"{data['fio_cart']}")
+    await message.answer("Выполнено", reply_markup=main())
     await state.clear()
