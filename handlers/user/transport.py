@@ -98,6 +98,7 @@ async def transport_date(message: types.Message, state: FSMContext):
     data = await state.get_data()
     date_obj = datetime.strptime(data['date_from'], "%d.%m.%Y")
     next_message = date_obj + timedelta(days=15)
+    next_message_formatted = next_message.strftime("%d.%m.%Y")
     try:
         if data['ooo_or_ip'] == 'IP':
             transport = Transports(
@@ -109,7 +110,7 @@ async def transport_date(message: types.Message, state: FSMContext):
                 city=data['city'],
                 km=data['km'],
                 date_from=data['date_from'],
-                next_message=next_message
+                next_message=next_message_formatted
 
             )
             db_session.add(transport)
@@ -125,7 +126,7 @@ async def transport_date(message: types.Message, state: FSMContext):
                 ooo_or_ip=data['ooo_or_ip'],
                 auto=data['auto'],
                 date_from=data['date_from'],
-                next_message=next_message
+                next_message=next_message_formatted
             )
             db_session.add(transport)
             db_session.commit()
