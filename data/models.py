@@ -80,3 +80,4 @@ class Transports(Base):
     km = Column(DECIMAL)
     date_from = Column(String)
     priezd = Column(Boolean, default=False)
+    next_message = Column(String)

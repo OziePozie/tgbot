@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 from aiogram import Router, F, types
 from aiogram.fsm.context import FSMContext
 
@@ -94,6 +96,8 @@ async def check_probeg(message: types.Message, state: FSMContext):
 async def transport_date(message: types.Message, state: FSMContext):
     await state.update_data(date_from=message.text)
     data = await state.get_data()
+    date_obj = datetime.strptime(data['date_from'], "%d.%m.%Y")
+    next_message = date_obj + timedelta(days=15)
     try:
         if data['ooo_or_ip'] == 'IP':
             transport = Transports(
@@ -104,7 +108,9 @@ async def transport_date(message: types.Message, state: FSMContext):
                 auto=data['auto'],
                 city=data['city'],
                 km=data['km'],
-                date_from=data['date_from']
+                date_from=data['date_from'],
+                next_message=next_message
+
             )
             db_session.add(transport)
             db_session.commit()
@@ -118,7 +124,8 @@ async def transport_date(message: types.Message, state: FSMContext):
                 object_name=data['object_name'],
                 ooo_or_ip=data['ooo_or_ip'],
                 auto=data['auto'],
-                date_from=data['date_from']
+                date_from=data['date_from'],
+                next_message=next_message
             )
             db_session.add(transport)
             db_session.commit()
