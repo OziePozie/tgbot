@@ -6,8 +6,9 @@ from service.geopy_service import get_km
 from context.user.main_context import Transport
 from keyboard.user.main import CallbackWorkerData, CallbackObjectData, \
     performance_report_markup, list_auto_keyboard, CallbackAutoData, ooo_or_ip, worker_callback_markup, go_to_markup, \
-    date_from, main
+    date_from, main, date_from_vyezd, CallbackDateFromData
 from data.models import Transports
+from sqlalchemy import and_
 
 router = Router()
 
@@ -59,8 +60,34 @@ async def transport_auto(call: types.CallbackQuery, state: FSMContext, callback_
 
 @router.callback_query(F.data == "vyezd")
 async def transport_vyezd(call: types.CallbackQuery, state: FSMContext):
-    await call.message.answer("Выбор даты", reply_markup=date_from())
-    await state.set_state(Transport.date_from)
+    data = await state.get_data()
+    user = db_session.query(Transports).filter(
+        and_(
+            Transports.master == str(data['master']),
+            Transports.master_id == str(call.from_user.id),
+            Transports.priezd == False)).first()
+    if user:
+        await call.message.answer("Выбор даты", reply_markup=date_from_vyezd(user))
+        await state.set_state(Transport.date_from)
+    else:
+        await call.message.answer("Выбор даты", reply_markup=date_from())
+        await state.set_state(Transport.date_from)
+
+
+@router.callback_query(CallbackDateFromData.filter(), Transport.date_from)
+async def check_date(call: types.CallbackQuery, state: FSMContext, callback_data: CallbackDateFromData):
+    await state.update_data(date_from=callback_data.data)
+    await call.message.edit_text("Введите пробега")
+    await state.set_state(Transport.probeg)
+
+
+@router.message(Transport.probeg)
+async def check_probeg(message: types.Message, state: FSMContext):
+    await state.update_data(probeg=message.text)
+    data = await state.get_data()
+    print(data)
+    await message.answer("Принято!", reply_markup=main())
+    await state.clear()
 
 
 @router.message(Transport.date_from)
@@ -95,7 +122,7 @@ async def transport_date(message: types.Message, state: FSMContext):
             )
             db_session.add(transport)
             db_session.commit()
-            await message.answer("Принято!", reply_markup=main())
+            await message.answer("Принято!", reply_markup=types.ReplyKeyboardRemove())
             await state.clear()
     except Exception as ex:
         await message.answer(f"Ошибка при добавлении! Попробуйте снова {ex}")
@@ -112,6 +139,3 @@ async def transport_city(message: types.Message, state: FSMContext):
     km = get_km(str(message.text))
     await state.update_data(km=km)
     await message.answer("Выбор", reply_markup=go_to_markup())
-
-
-

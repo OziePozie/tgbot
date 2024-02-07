@@ -4,8 +4,7 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeybo
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from config import db_session
 from aiogram.filters.callback_data import CallbackData
-from data.models import Object, Workers, Travel_orders, Auto
-from sqlalchemy import select
+from data.models import Object, Workers, Travel_orders, Auto, Transports
 
 
 def main():
@@ -136,3 +135,17 @@ def go_to_markup():
     ]
     markup = InlineKeyboardMarkup(inline_keyboard=buttons)
     return markup
+
+
+class CallbackDateFromData(CallbackData, prefix="date_data"):
+    action: str
+    data: str
+
+
+def date_from_vyezd(user):
+    builder = InlineKeyboardBuilder()
+    builder.button(
+        text=str(user.date_from), callback_data=CallbackDateFromData(action=str(user.id), data=str(user.date_from))
+    )
+    builder.adjust(1)
+    return builder.as_markup()

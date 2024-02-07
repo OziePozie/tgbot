@@ -72,11 +72,11 @@ class Transports(Base):
 
     id = Column(Integer, primary_key=True)
     master = Column(String)
-    master_id = Column(Integer)
+    master_id = Column(String)
     object_name = Column(String)
     ooo_or_ip = Column(String)
     auto = Column(String)
     city = Column(String)
     km = Column(DECIMAL)
     date_from = Column(String)
-
+    priezd = Column(Boolean, default=False)
