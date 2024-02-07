@@ -75,8 +75,6 @@ async def quit(message: types.Message):
         delta = (datetime.strptime(user.date_to, '%d.%m.%Y') - datetime.strptime(user.date_from, '%d.%m.%Y')).days
         text += f"{user[0]} – {delta} дней; \n"
     text = text[:-2] + "\n"
-    db_session.query(Travel_orders).filter(Travel_orders.from_report == from_report).delete()
-    db_session.commit()
     await bot.send_message(chat_id=-4104881167, text=text)
 
 

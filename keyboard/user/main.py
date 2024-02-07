@@ -4,7 +4,8 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeybo
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from config import db_session
 from aiogram.filters.callback_data import CallbackData
-from data.models import Object, Workers, Travel_orders
+from data.models import Object, Workers, Travel_orders, Auto
+from sqlalchemy import select
 
 
 def main():
@@ -79,4 +80,59 @@ def add_person():
         [KeyboardButton(text='Закончить')]
     ]
     markup = ReplyKeyboardMarkup(keyboard=keyboard)
+    return markup
+
+
+class CallbackAutoData(CallbackData, prefix="auto_data"):
+    action: str
+    data: str
+
+
+def list_auto_keyboard(callback_data):
+    builder = InlineKeyboardBuilder()
+    if callback_data == "OOO":
+        data = db_session.query(Auto.id, Auto.name).where(Auto.isOOO == 1)
+    else:
+        data = db_session.query(Auto.id, Auto.name).where(Auto.isOOO == 0)
+    for d in data:
+        builder.button(
+            text=d[1], callback_data=CallbackAutoData(data=d[1], action=str(d[0]))
+        )
+    builder.adjust(1)
+    return builder.as_markup()
+
+
+def ooo_or_ip():
+    buttons = [
+        [InlineKeyboardButton(text="ИП", callback_data="IP")],
+        [InlineKeyboardButton(text="ООО", callback_data="OOO")]
+    ]
+    markup = InlineKeyboardMarkup(inline_keyboard=buttons)
+    return markup
+
+
+class CallbackWorkerData(CallbackData, prefix="workers_data"):
+    action: str
+    data: str
+
+
+def worker_callback_markup():
+    builder = InlineKeyboardBuilder()
+    data = db_session.query(Workers.id, Workers.name).all()
+
+    for d in data:
+        builder.button(
+            text=d[1], callback_data=CallbackWorkersData(data=d[1], action=str(d[0]))
+            )
+
+    builder.adjust(1)
+    return builder.as_markup()
+
+
+def go_to_markup():
+    buttons = [
+        [InlineKeyboardButton(text="Выбор даты выезда с базы на объект", callback_data="vyezd")],
+        [InlineKeyboardButton(text="Выбор даты приезда с объекта на базу", callback_data="priezd")]
+    ]
+    markup = InlineKeyboardMarkup(inline_keyboard=buttons)
     return markup

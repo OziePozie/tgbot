@@ -35,3 +35,13 @@ class Autocran(StatesGroup):
     fio_cart = State()
 
 
+class Transport(StatesGroup):
+    master = State()
+    object_name = State()
+    auto = State()
+    ooo_or_ip = State()
+    city = State()
+    km = State()
+    date_from = State()
+    probeg = State()
+
