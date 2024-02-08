@@ -4,7 +4,7 @@ from aiogram import Router, F, types
 from aiogram.fsm.context import FSMContext
 from context.user.main_context import TravelOrdersReport
 from keyboard.user.main import performance_report_markup, CallbackObjectData, \
-    CallbackWorkersData, workers_callback_markup, date_from, add_person
+    CallbackWorkersData, workers_callback_markup, date_from, add_person, main
 from data.models import Travel_orders
 from config import db_session, bot
 
@@ -46,7 +46,7 @@ async def fil_date_to(message: types.Message, state: FSMContext):
         new_worker = Travel_orders(fio=data['worker_name'],
                                    date_from=data['worker_date_is'],
                                    date_to=data['worker_date_to'],
-                                   from_report=message.from_user.username,
+                                   from_report=message.from_user.id,
                                    is_order=True,
                                    object_name=data['object_name'])
         db_session.add(new_worker)
@@ -76,5 +76,6 @@ async def quit(message: types.Message):
         text += f"{user[0]} – {delta} дней; \n"
     text = text[:-2] + "\n"
     await bot.send_message(chat_id=-4104881167, text=text)
+    await message.answer("Выполнено!", reply_markup=main())
 
 

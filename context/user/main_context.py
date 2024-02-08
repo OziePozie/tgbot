@@ -45,3 +45,11 @@ class Transport(StatesGroup):
     date_from = State()
     probeg = State()
 
+
+class PerformanceReport(StatesGroup):
+    object = State()
+    date = State()
+    text = State()
+    photo_video = State()
+
+

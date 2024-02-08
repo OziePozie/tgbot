@@ -48,7 +48,7 @@ class Workers(Base):
 
 
 class Travel_orders(Base):
-    __tablename__ = "traver_order"
+    __tablename__ = "travel_order"
 
     id = Column(Integer, primary_key=True)
     fio = Column(String)
@@ -81,3 +81,14 @@ class Transports(Base):
     date_from = Column(String)
     priezd = Column(Boolean, default=False)
     next_message = Column(String)
+
+
+class PerformanceReport(Base):
+    __tablename__ = 'performance_report'
+
+    id = Column(Integer, primary_key=True)
+    object_name = Column(String)
+    date = Column(String)
+    text = Column(String)
+    photo_video = Column(String)
+

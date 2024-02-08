@@ -148,3 +148,20 @@ def date_from_vyezd(user):
     )
     builder.adjust(1)
     return builder.as_markup()
+
+
+class CallbackDateOrdersData(CallbackData, prefix="orders_data"):
+    action: str
+    data: str
+
+
+def date_of_work():
+    builder = InlineKeyboardBuilder()
+    date_from_db = db_session.query(Travel_orders.date_from, Travel_orders.date_to).all()
+    for date in date_from_db:
+        builder.button(
+            text=f"{date[0]} - {date[1]}", callback_data=CallbackDateOrdersData(action=f"{date[0]} - {date[1]}",
+                                                                                data=f"{date[0]} - {date[1]}")
+        )
+    builder.adjust(1)
+    return builder.as_markup()
