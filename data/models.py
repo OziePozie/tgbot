@@ -1,5 +1,5 @@
 import datetime
-from sqlalchemy import Integer, String, Boolean, Column, Enum, Date, ForeignKey, Float
+from sqlalchemy import Integer, String, Boolean, Column, Enum, Date, ForeignKey, Float, DateTime, func
 from sqlalchemy.orm import declarative_base, relationship
 from enum import Enum as BaseEnum
 
@@ -19,6 +19,7 @@ class Object(Base):
     total_other_expenses = Column(Float, default=0)
     total_autocran = Column(Float, default=0)
     total_hours = Column(Float, default=0)
+    createdAt = Column(DateTime(timezone=True), server_default=func.now())
 
 
 class Auto(Base):
@@ -85,8 +86,6 @@ class Transports(Base):
     city = Column(String)
     km = Column(Float)
     date_from = Column(String)
-    probeg_vyezd = Column(Integer, default=0)
-    probeg_prized = Column(Integer, default=0)
     priezd = Column(Boolean, default=False)
     next_message = Column(String)
 

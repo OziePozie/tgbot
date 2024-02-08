@@ -36,7 +36,6 @@ async def object_add(call: types.CallbackQuery, state: FSMContext):
 
     await call.message.edit_text("Введите имя объекта")
     await state.set_state(AddObject.name)
-    await call.message.delete()
 
 
 @router.message(AddObject.name)

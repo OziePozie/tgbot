@@ -10,15 +10,17 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from config import db_session
 from data.models import Workers, WorkType
 from handlers.admin.report.report import report_router
+from handlers.admin.list.list import router as list_router
 
 router = Router()
 router.include_router(report_router)
+router.include_router(list_router)
 
 
 def main():
     keyboard = [
-        [InlineKeyboardButton(text="Сформировать список", callback_data="list")],
-        [InlineKeyboardButton(text="Отчет по объекту", callback_data='report')],
+        [InlineKeyboardButton(text="Сформировать список", callback_data="report")],
+        [InlineKeyboardButton(text="Отчет по объекту", callback_data='list')],
 
     ]
     markup = InlineKeyboardMarkup(inline_keyboard=keyboard)
@@ -47,16 +49,15 @@ async def report(call: types.CallbackQuery):
     await call.message.edit_text("Выберите действие", reply_markup=markup)
 
 
-@router.callback_query(F.data == 'list')
-async def list(call: types.CallbackQuery):
-    keyboard = [
-        [InlineKeyboardButton(text="Выбор объекта", callback_data="choice_object")],
-        [InlineKeyboardButton(text="Назад", callback_data="back_main")]]
-
-    markup = InlineKeyboardMarkup(inline_keyboard=keyboard)
-    await InlineKeyboardMarkup(inline_keyboard=keyboard)
-
-    await call.message.edit_text("Выберите объект", reply_markup=markup)
+# @router.callback_query(F.data == 'list')
+# async def list(call: types.CallbackQuery):
+#     keyboard = [
+#         [InlineKeyboardButton(text="Выбор объекта", callback_data="choice_object")],
+#         [InlineKeyboardButton(text="Назад", callback_data="back_main")]]
+#
+#     markup = InlineKeyboardMarkup(inline_keyboard=keyboard)
+#
+#     await call.message.edit_text("Выберите объект", reply_markup=markup)
 
 
 @router.callback_query(F.data == 'workers')
@@ -70,7 +71,6 @@ async def workers(call: types.CallbackQuery):
 
     markup = InlineKeyboardMarkup(inline_keyboard=keyboard)
     await call.message.edit_text("Выберите действие", reply_markup=markup)
-
 
 
 @router.callback_query(F.data == 'add')
@@ -148,6 +148,6 @@ async def add_worker(message: Message, state: FSMContext):
         [InlineKeyboardButton(text=f"Вернуться на главную", callback_data="back_main")]
     ]
     markup = InlineKeyboardMarkup(inline_keyboard=keyboard)
-
+    await state.clear()
     await message.reply(text="Успешное добавление. Выберите действие",
                         reply_markup=markup)
