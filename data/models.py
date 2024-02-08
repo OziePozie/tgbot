@@ -1,5 +1,5 @@
 import datetime
-from sqlalchemy import Integer, String, Boolean, Column, Enum, Date, ForeignKey, DECIMAL
+from sqlalchemy import Integer, String, Boolean, Column, Enum, Date, ForeignKey, Float
 from sqlalchemy.orm import declarative_base, relationship
 from enum import Enum as BaseEnum
 
@@ -13,6 +13,12 @@ class Object(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String)
     tg_link = Column(String)
+    total_travelers = Column(Float)
+    total_fuel = Column(Float)
+    total_living = Column(Float)
+    total_other_expenses = Column(Float)
+    total_autocran = Column(Float)
+    total_hours = Column(Float)
 
 
 class Auto(Base):
@@ -77,7 +83,7 @@ class Transports(Base):
     ooo_or_ip = Column(String)
     auto = Column(String)
     city = Column(String)
-    km = Column(DECIMAL)
+    km = Column(Float)
     date_from = Column(String)
     priezd = Column(Boolean, default=False)
     next_message = Column(String)
