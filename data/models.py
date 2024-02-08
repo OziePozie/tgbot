@@ -86,6 +86,8 @@ class Transports(Base):
     city = Column(String)
     km = Column(Float)
     date_from = Column(String)
+    probeg_vyezd = Column(Integer, default=0)
+    probeg_prized = Column(Integer, default=0)
     priezd = Column(Boolean, default=False)
     next_message = Column(String)
 

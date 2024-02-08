@@ -28,7 +28,7 @@ async def transport_master(call: types.CallbackQuery, state: FSMContext, callbac
 
 @router.callback_query(CallbackObjectData.filter(), Transport.object_name)
 async def transport_object(call: types.CallbackQuery, state: FSMContext, callback_data: CallbackAutoData):
-    await state.update_data(object_name=callback_data.action)
+    await state.update_data(object_name=callback_data.data)
     await call.message.edit_text("ООО или ИП?", reply_markup=ooo_or_ip())
     await state.set_state(Transport.ooo_or_ip)
 
@@ -82,7 +82,7 @@ async def check_date(call: types.CallbackQuery, state: FSMContext, callback_data
 @router.message(Transport.date_from)
 async def transport_date(message: types.Message, state: FSMContext):
     await state.update_data(date_from=message.text)
-    await message.answer("Введите пробега")
+    await message.answer("Введите пробега", reply_markup=types.ReplyKeyboardRemove())
     await state.set_state(Transport.probeg)
 
 
@@ -126,20 +126,23 @@ async def check_probeg(message: types.Message, state: FSMContext):
             auto_name = db_session.query(Transports.auto).filter(Transports.master_id == int(message.from_user.id)).first()
             get_heavy = db_session.query(Auto.isHeavy).filter(Auto.name == str(auto_name.auto)).first()
             if get_heavy[0] is True:
-                probeg = db_session.query(Transports.probeg_vyezd, Transports.probeg_prized).filter(Transports.master_id == int(message.from_user.id)).first()
+                probeg = db_session.query(Transports.probeg_vyezd, Transports.probeg_prized, Transports.object_name).filter(Transports.master_id == int(message.from_user.id)).first()
                 raznica = int(probeg.probeg_prized) - int(probeg.probeg_vyezd)
                 obshaya_raznica = (int(raznica) * (20 / 100)) * 60
-                objests = db_session.query(Object.total_fuel).filter(Object.id == int(probeg.id)).first()
-                objests.total_fuel += obshaya_raznica
-                db_session.commit()
+                object_to_update = db_session.query(Object).filter(Object.name == str(probeg.object_name)).first()
+                if object_to_update:
+                    object_to_update.total_fuel += float(obshaya_raznica)
+                    db_session.commit()
+                    await message.answer("Принято!", reply_markup=main())
             else:
                 probeg = db_session.query(Transports.probeg_vyezd, Transports.probeg_prized, Transports.object_name).filter(Transports.master_id == int(message.from_user.id)).first()
                 raznica = int(probeg.probeg_prized) - int(probeg.probeg_vyezd)
                 obshaya_raznica = (int(raznica) * (9 / 100)) * 55
-
-                objests = db_session.query(Object.total_fuel).filter(Object.id == int(probeg.id)).first()
-                objests.total_fuel += obshaya_raznica
-                db_session.commit()
+                object_to_update = db_session.query(Object).filter(Object.name == str(probeg.object_name)).first()
+                if object_to_update:
+                    object_to_update.total_fuel += float(obshaya_raznica)
+                    db_session.commit()
+                    await message.answer("Принято!", reply_markup=main())
     except Exception as ex:
         await message.answer(f"Ошибка при добавлении! Попробуйте снова {ex}", reply_markup=main())
         await state.clear()

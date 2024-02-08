@@ -67,7 +67,6 @@ async def living_price(message: types.Message, state: FSMContext):
                                                      f"{data['fio_cart']}")
     object_to_update = db_session.query(Object).filter(Object.id == int(data['object_name'])).first()
     if object_to_update:
-        print(object_to_update.total_living)
         object_to_update.total_living += float(data['price'])
         db_session.commit()
         await state.clear()
