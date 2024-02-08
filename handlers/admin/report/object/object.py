@@ -56,7 +56,7 @@ async def add_tg_to_object(message: Message, state: FSMContext):
         [InlineKeyboardButton(text=f"Вернуться на главную", callback_data="back_main")]
     ]
     markup = InlineKeyboardMarkup(inline_keyboard=keyboard)
-
+    await state.clear()
     await message.reply(text="Успешное добавление. Выберите действие",
                         reply_markup=markup)
 
