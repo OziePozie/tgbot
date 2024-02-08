@@ -77,13 +77,13 @@ async def waste_report(call: CallbackQuery):
            + object.total_fuel + object.total_living +
            object.total_other_expenses)
 
-    await call.message.reply(f"Отчет по объекту {object.name}"
-                             f"Количество дней {object.createdAt}"
-                             f"Командировачные расходы {object.total_travelers} .руб"
-                             f"Транспортные расходы {object.total_fuel} .руб"
-                             f"Затраты на проживание {object.total_living} .руб"
-                             f"Прочие расходы {object.total_other_expenses} .руб"
-                             f"Затраты на услуги автокрана {object.total_autocran} .руб"
+    await call.message.reply(f"Отчет по объекту {object.name} \n"
+                             f"Количество дней {object.createdAt} \n"
+                             f"Командировачные расходы {object.total_travelers} .руб \n"
+                             f"Транспортные расходы {object.total_fuel} .руб \n"
+                             f"Затраты на проживание {object.total_living} .руб \n"
+                             f"Прочие расходы {object.total_other_expenses} .руб \n"
+                             f"Затраты на услуги автокрана {object.total_autocran} .руб \n"
                              f"Итого {sum} .руб")
 
 
