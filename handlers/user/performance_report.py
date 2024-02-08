@@ -16,7 +16,7 @@ async def list_work(call: types.CallbackQuery, state: FSMContext):
 
 @router.callback_query(CallbackObjectData.filter(), PerformanceReport.object)
 async def filter_object(call: types.CallbackQuery, callback_data: CallbackObjectData, state: FSMContext):
-    await state.update_data(object=callback_data.data)
+    await state.update_data(object=callback_data.action)
     await call.message.edit_text("Выберите период", reply_markup=date_of_work())
     await state.set_state(PerformanceReport.date)
 

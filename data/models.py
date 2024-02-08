@@ -13,12 +13,12 @@ class Object(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String)
     tg_link = Column(String)
-    total_travelers = Column(Float)
-    total_fuel = Column(Float)
-    total_living = Column(Float)
-    total_other_expenses = Column(Float)
-    total_autocran = Column(Float)
-    total_hours = Column(Float)
+    total_travelers = Column(Float, default=0)
+    total_fuel = Column(Float, default=0)
+    total_living = Column(Float, default=0)
+    total_other_expenses = Column(Float, default=0)
+    total_autocran = Column(Float, default=0)
+    total_hours = Column(Float, default=0)
 
 
 class Auto(Base):

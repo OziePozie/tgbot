@@ -165,3 +165,20 @@ def date_of_work():
         )
     builder.adjust(1)
     return builder.as_markup()
+
+
+class CallbackWorkersListData(CallbackData, prefix="workerslist_data"):
+    action: str
+    data: str
+
+
+def workers_list_callback_markup():
+    builder = InlineKeyboardBuilder()
+    data = db_session.query(Workers.id, Workers.name).all()
+
+    for d in data:
+        builder.button(
+            text=d[1], callback_data=CallbackWorkersData(data=d[1], action=str(d[0]))
+            )
+    builder.adjust(1)
+    return builder.as_markup()

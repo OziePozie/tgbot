@@ -6,7 +6,7 @@ from service.geopy_service import get_km
 from context.user.main_context import Transport
 from keyboard.user.main import CallbackWorkerData, CallbackObjectData, \
     performance_report_markup, list_auto_keyboard, CallbackAutoData, ooo_or_ip, worker_callback_markup, go_to_markup, \
-    date_from, main, date_from_vyezd, CallbackDateFromData
+    date_from, main, date_from_vyezd, CallbackDateFromData, CallbackWorkersListData, workers_list_callback_markup
 from data.models import Transports
 from sqlalchemy import and_
 
@@ -15,11 +15,11 @@ router = Router()
 
 @router.callback_query(F.data == "transport")
 async def transport(call: types.CallbackQuery, state: FSMContext):
-    await call.message.edit_text("Выбор Ф.И.О. мастера", reply_markup=worker_callback_markup())
+    await call.message.edit_text("Выбор Ф.И.О. мастера", reply_markup=workers_list_callback_markup())
     await state.set_state(Transport.master)
 
 
-@router.callback_query(CallbackWorkerData.filter(), Transport.master)
+@router.callback_query(CallbackWorkersListData.filter(), Transport.master)
 async def transport_master(call: types.CallbackQuery, state: FSMContext, callback_data: CallbackWorkerData):
     await state.update_data(master=callback_data.data)
     await call.message.edit_text("Выбор объекта", reply_markup=performance_report_markup())
