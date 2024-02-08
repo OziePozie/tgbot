@@ -67,7 +67,7 @@ def date_from():
         button = [KeyboardButton(text=date_str)]
         buttons.append(button)
 
-    markup = ReplyKeyboardMarkup(keyboard=buttons)
+    markup = ReplyKeyboardMarkup(keyboard=buttons, resize_keyboard=True)
 
     return markup
 
@@ -77,7 +77,7 @@ def add_person():
         [KeyboardButton(text="Еще добавить")],
         [KeyboardButton(text='Закончить')]
     ]
-    markup = ReplyKeyboardMarkup(keyboard=keyboard)
+    markup = ReplyKeyboardMarkup(keyboard=keyboard, resize_keyboard=True)
     return markup
 
 
