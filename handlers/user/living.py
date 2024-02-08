@@ -62,8 +62,10 @@ async def living_cart(message: types.Message, state: FSMContext):
 async def living_price(message: types.Message, state: FSMContext):
     await state.update_data(fio_cart=message.text)
     data = await state.get_data()
+    object_name = db_session.query(Object).filter(Object.id == int(data['object_name'])).first()
+
     await bot.send_message(chat_id=-4104881167, text=f"Прошу перевести {data['price']} за квартиру.\n"
-                                                     f"Объект - {data['object_name']}, по номеру {data['cart_number']}\n"
+                                                     f"Объект - {str(object_name.name)}, по номеру {data['cart_number']}\n"
                                                      f"{data['fio_cart']}")
     object_to_update = db_session.query(Object).filter(Object.id == int(data['object_name'])).first()
     if object_to_update:

@@ -61,8 +61,8 @@ def workers_callback_markup():
 def date_from():
     buttons = []
     now = datetime.now()
-    for i in range(20):
-        date = now - timedelta(days=i)
+    for i in range(10):
+        date = now + timedelta(days=i)
         date_str = date.strftime("%d.%m.%Y")
         button = [KeyboardButton(text=date_str)]
         buttons.append(button)
@@ -86,12 +86,9 @@ class CallbackAutoData(CallbackData, prefix="auto_data"):
     data: str
 
 
-def list_auto_keyboard(callback_data):
+def list_auto_keyboard():
     builder = InlineKeyboardBuilder()
-    if callback_data == "OOO":
-        data = db_session.query(Auto.id, Auto.name).where(Auto.isOOO == 1)
-    else:
-        data = db_session.query(Auto.id, Auto.name).where(Auto.isOOO == 0)
+    data = db_session.query(Auto.id, Auto.name).all()
     for d in data:
         builder.button(
             text=d[1], callback_data=CallbackAutoData(data=d[1], action=str(d[0]))

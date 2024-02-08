@@ -81,7 +81,6 @@ class Transports(Base):
     master = Column(String)
     master_id = Column(String)
     object_name = Column(String)
-    ooo_or_ip = Column(String)
     auto = Column(String)
     city = Column(String)
     km = Column(Float)

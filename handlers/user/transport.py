@@ -29,21 +29,7 @@ async def transport_master(call: types.CallbackQuery, state: FSMContext, callbac
 @router.callback_query(CallbackObjectData.filter(), Transport.object_name)
 async def transport_object(call: types.CallbackQuery, state: FSMContext, callback_data: CallbackAutoData):
     await state.update_data(object_name=callback_data.data)
-    await call.message.edit_text("ООО или ИП?", reply_markup=ooo_or_ip())
-    await state.set_state(Transport.ooo_or_ip)
-
-
-@router.callback_query(Transport.ooo_or_ip, F.data == "IP")
-async def transport_IP(call: types.CallbackQuery, state: FSMContext):
-    await state.update_data(ooo_or_ip=call.data)
-    await call.message.edit_text("Выбор авто", reply_markup=list_auto_keyboard(callback_data=call.data))
-    await state.set_state(Transport.auto)
-
-
-@router.callback_query(Transport.ooo_or_ip, F.data == "OOO")
-async def transport_OOO(call: types.CallbackQuery, state: FSMContext):
-    await state.update_data(ooo_or_ip=call.data)
-    await call.message.edit_text("Выбор авто", reply_markup=list_auto_keyboard(callback_data=call.data))
+    await call.message.edit_text("Выбор авто", reply_markup=list_auto_keyboard())
     await state.set_state(Transport.auto)
 
 
@@ -62,7 +48,6 @@ async def transport_vyezd(call: types.CallbackQuery, state: FSMContext):
         and_(
             Transports.master == str(data['master']),
             Transports.master_id == str(call.from_user.id),
-            Transports.ooo_or_ip == str(data['ooo_or_ip']),
             Transports.priezd == False)).first()
     if user:
         await call.message.answer("Выбор даты", reply_markup=date_from_vyezd(user))
@@ -100,7 +85,6 @@ async def check_probeg(message: types.Message, state: FSMContext):
                 master=data['master'],
                 master_id=message.from_user.id,
                 object_name=data['object_name'],
-                ooo_or_ip=data['ooo_or_ip'],
                 auto=data['auto'],
                 city=data['city'],
                 km=data['km'],

@@ -48,8 +48,10 @@ async def check_photo(message: types.Message, state: FSMContext):
     data = await state.get_data()
     photo_id = message.photo[-1].file_id
     photo_message = await bot.send_photo(chat_id=-4104881167, photo=photo_id)
+    object_name = db_session.query(Object).filter(Object.id == int(data['object_name'])).first()
+
     await bot.send_message(chat_id=-4104881167, text=f"Мастер: {data['master']}\n"
-                                                     f"Обьект: {data['object_name']}\n"
+                                                     f"Обьект: {str(object_name.name)}\n"
                                                      f"Наименование товара: {data['tovar_name']}\n"
                                                      f"Стоимость товара {data['tovar_price']} руб\n",
                            reply_to_message_id=photo_message.message_id)

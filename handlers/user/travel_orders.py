@@ -66,10 +66,11 @@ async def add_person_any(message: types.Message, state: FSMContext):
 
 @router.message(F.text == 'Закончить')
 async def quit(message: types.Message):
-    text = "Объект: \n"
     from_report = str(message.from_user.id)
     total_days = 0
     object_id = db_session.query(Travel_orders.object_name).filter(Travel_orders.from_report == from_report).first()
+    object_name = db_session.query(Object).filter(Object.id == object_id.object_name).first()
+    text = f"Объект: {str(object_name.name)}\n"
     users = db_session.query\
         (Travel_orders.fio, Travel_orders.date_from, Travel_orders.date_to, Travel_orders.object_name).filter\
         (Travel_orders.from_report == from_report)
@@ -85,6 +86,10 @@ async def quit(message: types.Message):
         db_session.commit()
         await message.answer("Выполнено", reply_markup=main())
         await bot.send_message(chat_id=-4104881167, text=text)
+
+        db_session.query(Travel_orders).filter(Travel_orders.from_report == from_report).delete()
+        db_session.commit()
+
     else:
         await message.answer("Попробуйте позже", reply_markup=main())
 

@@ -4,7 +4,8 @@ from aiogram.fsm.context import FSMContext
 from config import db_session, bot
 from keyboard.user.main import performance_report_markup, CallbackObjectData, CallbackDateOrdersData, date_of_work, main
 from context.user.main_context import PerformanceReport
-from data.models import PerformanceReport as PerformanceReportDB
+from data.models import PerformanceReport as PerformanceReportDB, Object
+
 router = Router()
 
 
@@ -49,8 +50,10 @@ async def check_photo_video(message: types.Message, state: FSMContext):
     db_session.commit()
     await message.answer("Выполнено!", reply_markup=main())
     a = await bot.send_photo(chat_id=-4104881167, photo=f"{data['photo_video']}")
+    object_name = db_session.query(Object).filter(Object.id == int(data['object'])).first()
+
     await bot.send_message(chat_id=-4104881167, text=f"Отчет о работе\n"
-                                                     f"Обьект: {data['object']}\n"
+                                                     f"Обьект: {str(object_name.name)}\n"
                                                      f"Период: {data['date']}\n"
                                                      f"Сообщение: {data['text']}\n", reply_to_message_id=a.message_id)
     await state.clear()
