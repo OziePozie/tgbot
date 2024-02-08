@@ -103,7 +103,7 @@ async def media_report(call: CallbackQuery):
         await bot.send_message(chat_id=call.from_user.id,
                                text=f"Отчет по объекту {object.name} \n"
                                 f"Дата: {report.date} \n"
-                                f" {report.text}",
+                                f"{report.text}",
                                reply_to_message_id=id.message_id)
 
 
