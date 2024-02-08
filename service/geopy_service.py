@@ -4,13 +4,16 @@ from geopy.distance import geodesic
 
 
 def get_km(city):
-    geolocator = Nominatim(user_agent="Tester")
-    default_city = "Энгельс"
-    location_1 = geolocator.geocode(default_city)
-    location_2 = geolocator.geocode(city)
-    gps_point_1 = location_1.latitude, location_1.longitude
-    gps_point_2 = location_2.latitude, location_2.longitude
-    return geodesic(gps_point_1, gps_point_2).kilometers
+    try:
+        geolocator = Nominatim(user_agent="Tester")
+        default_city = "Энгельс"
+        location_1 = geolocator.geocode(default_city)
+        location_2 = geolocator.geocode(city)
+        gps_point_1 = location_1.latitude, location_1.longitude
+        gps_point_2 = location_2.latitude, location_2.longitude
+        return geodesic(gps_point_1, gps_point_2).kilometers
+    except Exception as e:
+        return False
 
 
 # TOKEN = '5b3ce3597851110001cf62480d6d2a97c2e444708fd600df1581d525'

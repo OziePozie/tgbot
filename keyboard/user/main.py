@@ -178,7 +178,7 @@ def workers_list_callback_markup():
 
     for d in data:
         builder.button(
-            text=d[1], callback_data=CallbackWorkersData(data=d[1], action=str(d[0]))
+            text=d[1], callback_data=CallbackWorkersListData(data=d[1], action=str(d[0]))
             )
     builder.adjust(1)
     return builder.as_markup()

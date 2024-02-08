@@ -7,7 +7,7 @@ from context.user.main_context import Transport
 from keyboard.user.main import CallbackWorkerData, CallbackObjectData, \
     performance_report_markup, list_auto_keyboard, CallbackAutoData, ooo_or_ip, worker_callback_markup, go_to_markup, \
     date_from, main, date_from_vyezd, CallbackDateFromData, CallbackWorkersListData, workers_list_callback_markup
-from data.models import Transports
+from data.models import Transports, Auto, Object
 from sqlalchemy import and_
 
 router = Router()
@@ -28,7 +28,7 @@ async def transport_master(call: types.CallbackQuery, state: FSMContext, callbac
 
 @router.callback_query(CallbackObjectData.filter(), Transport.object_name)
 async def transport_object(call: types.CallbackQuery, state: FSMContext, callback_data: CallbackAutoData):
-    await state.update_data(object_name=callback_data.data)
+    await state.update_data(object_name=callback_data.action)
     await call.message.edit_text("ООО или ИП?", reply_markup=ooo_or_ip())
     await state.set_state(Transport.ooo_or_ip)
 
@@ -79,61 +79,100 @@ async def check_date(call: types.CallbackQuery, state: FSMContext, callback_data
     await state.set_state(Transport.probeg)
 
 
+@router.message(Transport.date_from)
+async def transport_date(message: types.Message, state: FSMContext):
+    await state.update_data(date_from=message.text)
+    await message.answer("Введите пробега")
+    await state.set_state(Transport.probeg)
+
+
 @router.message(Transport.probeg)
 async def check_probeg(message: types.Message, state: FSMContext):
     await state.update_data(probeg=message.text)
     data = await state.get_data()
-    await bot.send_message(chat_id=-4104881167, text=f"«Дата: {data['date_from']} - Пробег: {data['probeg']} км»")
-    await message.answer("Принято!", reply_markup=main())
-    await state.clear()
-
-
-@router.message(Transport.date_from)
-async def transport_date(message: types.Message, state: FSMContext):
-    await state.update_data(date_from=message.text)
-    data = await state.get_data()
-    date_obj = datetime.strptime(data['date_from'], "%d.%m.%Y")
-    next_message = date_obj + timedelta(days=15)
-    next_message_formatted = next_message.strftime("%d.%m.%Y")
     try:
-        transport = Transports(
-            master=data['master'],
-            master_id=message.from_user.id,
-            object_name=data['object_name'],
-            ooo_or_ip=data['ooo_or_ip'],
-            auto=data['auto'],
-            city=data['city'],
-            km=data['km'],
-            date_from=data['date_from'],
-            next_message=next_message_formatted
-        )
-        db_session.add(transport)
-        db_session.commit()
-        await message.answer("Принято!", reply_markup=main())
-        await bot.send_message(chat_id=-4104881167, text=f"Дата выезда {data['date_from']}; \n"
-                                                         f"Маршрут г. Энгельс Саратовская обл. – н.п. {data['city']};\n"
-                                                         f"Расстояние {int(data['km'])} км;\n"
-                                                         f"Стоимость перевозки, руб: {int(data['km']) * 40}")
-        await state.clear()
+        check_priezd = db_session.query(Transports).filter(Transports.master_id == message.from_user.id).first()
+        if check_priezd is None:
+            date_obj = datetime.strptime(data['date_from'], "%d.%m.%Y")
+            next_message = date_obj + timedelta(days=15)
+            next_message_formatted = next_message.strftime("%d.%m.%Y")
+            transport = Transports(
+                master=data['master'],
+                master_id=message.from_user.id,
+                object_name=data['object_name'],
+                ooo_or_ip=data['ooo_or_ip'],
+                auto=data['auto'],
+                city=data['city'],
+                km=data['km'],
+                date_from=data['date_from'],
+                probeg_vyezd=int(data['probeg']),
+                next_message=next_message_formatted
+            )
+            db_session.add(transport)
+            db_session.commit()
+            await message.answer("Принято!", reply_markup=main())
+            await bot.send_message(chat_id=-4104881167, text=f"«Дата: {data['date_from']} - Пробег: {data['probeg']} км»")
+            await bot.send_message(chat_id=-4104881167, text=f"Дата выезда {data['date_from']}; \n"
+                                                             f"Маршрут г. Энгельс Саратовская обл. – н.п. {data['city']};\n"
+                                                             f"Расстояние {int(data['km'])} км;\n"
+                                                             f"Стоимость перевозки, руб: {int(data['km']) * 40}")
+            await state.clear()
+        elif check_priezd.priezd is False and check_priezd.probeg_vyezd:
+            await bot.send_message(chat_id=-4104881167, text=f"«Дата: {data['date_from']} - Пробег: {data['probeg']} км»")
+        elif check_priezd.priezd is True:
+            user = db_session.query(Transports).filter(Transports.master_id == str(message.from_user.id)).first()
+            user.probeg_prized = int(message.text)
+            db_session.commit()
+            auto_name = db_session.query(Transports.auto).filter(Transports.master_id == int(message.from_user.id)).first()
+            get_heavy = db_session.query(Auto.isHeavy).filter(Auto.name == str(auto_name.auto)).first()
+            if get_heavy[0] is True:
+                probeg = db_session.query(Transports.probeg_vyezd, Transports.probeg_prized).filter(Transports.master_id == int(message.from_user.id)).first()
+                raznica = int(probeg.probeg_prized) - int(probeg.probeg_vyezd)
+                obshaya_raznica = (int(raznica) * (20 / 100)) * 60
+                objests = db_session.query(Object.total_fuel).filter(Object.id == int(probeg.id)).first()
+                objests.total_fuel += obshaya_raznica
+                db_session.commit()
+            else:
+                probeg = db_session.query(Transports.probeg_vyezd, Transports.probeg_prized, Transports.object_name).filter(Transports.master_id == int(message.from_user.id)).first()
+                raznica = int(probeg.probeg_prized) - int(probeg.probeg_vyezd)
+                obshaya_raznica = (int(raznica) * (9 / 100)) * 55
+
+                objests = db_session.query(Object.total_fuel).filter(Object.id == int(probeg.id)).first()
+                objests.total_fuel += obshaya_raznica
+                db_session.commit()
     except Exception as ex:
-        await message.answer(f"Ошибка при добавлении! Попробуйте снова {ex}")
+        await message.answer(f"Ошибка при добавлении! Попробуйте снова {ex}", reply_markup=main())
+        await state.clear()
 
 
 @router.callback_query(F.data == "priezd")
-async def transport_priezd(call: types.CallbackQuery):
+async def transport_priezd(call: types.CallbackQuery, state: FSMContext):
     user = db_session.query(Transports).filter(Transports.master_id == str(call.from_user.id)).first()
-    await bot.send_message(chat_id=-4104881167, text=f"Дата приезда {user.date_from}; \n"
-                                                     f"Маршрут г. Энгельс Саратовская обл. – н.п. {user.city};\n"
-                                                     f"Расстояние {int(user.km)} км;\n"
-                                                     f"Стоимость перевозки, руб: {int(user.km) * 40}")
     user.priezd = True
     db_session.commit()
-    await call.message.answer("Принято", reply_markup=main())
+    await call.message.answer("Введите пробега")
+    await state.set_state(Transport.probeg)
+    # current_date = datetime.now().date()
+    # auto_name = db_session.query(Transports.auto).filter(Transports.master_id == int(call.from_user.id)).first()
+    # get_heavy = db_session.query(Auto.isHeavy).filter(Auto.name == str(auto_name.auto)).first()
+    # if get_heavy is True:
+    #     pass
+    # else:
+    #     pass
+    # await bot.send_message(chat_id=-4104881167, text=f"Дата приезда {current_date}; \n"
+    #                                                  f"Маршрут г. Энгельс Саратовская обл. – н.п. {user.city};\n"
+    #                                                  f"Расстояние {int(user.km)} км;\n"
+    #                                                  f"Стоимость перевозки, руб: {int(user.km) * 40}")
+    # await call.message.answer("Принято", reply_markup=main())
 
 
 @router.message(Transport.city)
 async def transport_city(message: types.Message, state: FSMContext):
     await state.update_data(city=message.text)
     km = get_km(str(message.text))
-    await state.update_data(km=km)
-    await message.answer("Выбор", reply_markup=go_to_markup())
+    if km is False:
+        await state.update_data(km=0)
+        await message.answer("Обратитесь к администратору. Не удалось рассчитать расстояние", reply_markup=go_to_markup())
+    else:
+        await state.update_data(km=km)
+        await message.answer("Выбор", reply_markup=go_to_markup())
