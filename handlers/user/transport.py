@@ -1,9 +1,7 @@
 from datetime import datetime, timedelta
-
 from aiogram import Router, F, types
 from aiogram.fsm.context import FSMContext
-
-from config import db_session
+from config import db_session, bot
 from service.geopy_service import get_km
 from context.user.main_context import Transport
 from keyboard.user.main import CallbackWorkerData, CallbackObjectData, \
@@ -52,12 +50,9 @@ async def transport_OOO(call: types.CallbackQuery, state: FSMContext):
 @router.callback_query(CallbackAutoData.filter(), Transport.auto)
 async def transport_auto(call: types.CallbackQuery, state: FSMContext, callback_data: CallbackAutoData):
     await state.update_data(auto=callback_data.data)
-    data = await state.get_data()
-    if data['ooo_or_ip'] == "OOO":
-        await call.message.edit_text("Выбор", reply_markup=go_to_markup())
-    else:
-        await call.message.edit_text("Напишите город прибытия?")
-        await state.set_state(Transport.city)
+
+    await call.message.edit_text("Напишите город прибытия?")
+    await state.set_state(Transport.city)
 
 
 @router.callback_query(F.data == "vyezd")
@@ -67,6 +62,7 @@ async def transport_vyezd(call: types.CallbackQuery, state: FSMContext):
         and_(
             Transports.master == str(data['master']),
             Transports.master_id == str(call.from_user.id),
+            Transports.ooo_or_ip == str(data['ooo_or_ip']),
             Transports.priezd == False)).first()
     if user:
         await call.message.answer("Выбор даты", reply_markup=date_from_vyezd(user))
@@ -87,7 +83,7 @@ async def check_date(call: types.CallbackQuery, state: FSMContext, callback_data
 async def check_probeg(message: types.Message, state: FSMContext):
     await state.update_data(probeg=message.text)
     data = await state.get_data()
-    print(data)
+    await bot.send_message(chat_id=-4104881167, text=f"«Дата: {data['date_from']} - Пробег: {data['probeg']} км»")
     await message.answer("Принято!", reply_markup=main())
     await state.clear()
 
@@ -100,45 +96,39 @@ async def transport_date(message: types.Message, state: FSMContext):
     next_message = date_obj + timedelta(days=15)
     next_message_formatted = next_message.strftime("%d.%m.%Y")
     try:
-        if data['ooo_or_ip'] == 'IP':
-            transport = Transports(
-                master=data['master'],
-                master_id=message.from_user.id,
-                object_name=data['object_name'],
-                ooo_or_ip=data['ooo_or_ip'],
-                auto=data['auto'],
-                city=data['city'],
-                km=data['km'],
-                date_from=data['date_from'],
-                next_message=next_message_formatted
-
-            )
-            db_session.add(transport)
-            db_session.commit()
-            await message.answer("Принято!", reply_markup=main())
-            await state.clear()
-
-        else:
-            transport = Transports(
-                master=data['master'],
-                master_id=message.from_user.id,
-                object_name=data['object_name'],
-                ooo_or_ip=data['ooo_or_ip'],
-                auto=data['auto'],
-                date_from=data['date_from'],
-                next_message=next_message_formatted
-            )
-            db_session.add(transport)
-            db_session.commit()
-            await message.answer("Принято!", reply_markup=types.ReplyKeyboardRemove())
-            await state.clear()
+        transport = Transports(
+            master=data['master'],
+            master_id=message.from_user.id,
+            object_name=data['object_name'],
+            ooo_or_ip=data['ooo_or_ip'],
+            auto=data['auto'],
+            city=data['city'],
+            km=data['km'],
+            date_from=data['date_from'],
+            next_message=next_message_formatted
+        )
+        db_session.add(transport)
+        db_session.commit()
+        await message.answer("Принято!", reply_markup=main())
+        await bot.send_message(chat_id=-4104881167, text=f"Дата выезда {data['date_from']}; \n"
+                                                         f"Маршрут г. Энгельс Саратовская обл. – н.п. {data['city']};\n"
+                                                         f"Расстояние {int(data['km'])} км;\n"
+                                                         f"Стоимость перевозки, руб: {int(data['km']) * 40}")
+        await state.clear()
     except Exception as ex:
         await message.answer(f"Ошибка при добавлении! Попробуйте снова {ex}")
 
 
 @router.callback_query(F.data == "priezd")
 async def transport_priezd(call: types.CallbackQuery):
-    pass
+    user = db_session.query(Transports).filter(Transports.master_id == str(call.from_user.id)).first()
+    await bot.send_message(chat_id=-4104881167, text=f"Дата приезда {user.date_from}; \n"
+                                                     f"Маршрут г. Энгельс Саратовская обл. – н.п. {user.city};\n"
+                                                     f"Расстояние {int(user.km)} км;\n"
+                                                     f"Стоимость перевозки, руб: {int(user.km) * 40}")
+    user.priezd = True
+    db_session.commit()
+    await call.message.answer("Принято", reply_markup=main())
 
 
 @router.message(Transport.city)

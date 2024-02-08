@@ -1,10 +1,9 @@
 from datetime import datetime, timedelta
-
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, KeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from config import db_session
 from aiogram.filters.callback_data import CallbackData
-from data.models import Object, Workers, Travel_orders, Auto, Transports
+from data.models import Object, Workers, Travel_orders, Auto
 
 
 def main():
