@@ -91,24 +91,34 @@ async def waste_report(call: CallbackQuery):
 async def media_report(call: CallbackQuery):
     message = call.data.split('_')
     object = db_session.query(Object).filter(Object.id == int(message[2])).first()
-    report = (db_session.query(PerformanceReport)
-              .filter(PerformanceReport.object_name == int(message[2]))
-              .first())
+    reports = (db_session.query(PerformanceReport)
+              .filter(PerformanceReport.object_name == int(message[2])))
 
-    id = await bot.send_photo(chat_id=call.from_user.id, photo=report.photo_video)
-    await bot.send_message(chat_id=call.from_user.id, text=f"Отчет по объекту {object.name}"
-                                                           f"Дата: {report.date}"
-                                                           f" {report.text}",
-                           reply_to_message_id=id.message_id)
+    for report in reports:
+        try:
+            id = await bot.send_photo(chat_id=call.from_user.id,
+                                      photo=report.photo_video)
+        except Exception as e:
+            pass
+        await bot.send_message(chat_id=call.from_user.id,
+                               text=f"Отчет по объекту {object.name} \n"
+                                f"Дата: {report.date} \n"
+                                f" {report.text}",
+                               reply_to_message_id=id.message_id)
+
+
 
 
 @router.callback_query(F.data.startswith('ks_6_report'))
 async def ks_6_report(call: CallbackQuery):
     message = call.data.split('_')
     object = db_session.query(Object).filter(Object.id == int(message[2])).first()
-    report = (db_session.query(PerformanceReport)
-              .filter(PerformanceReport.object_id == int(message[2]))
-              .first())
-    await call.message.reply(f"Отчет по объекту {object.name}"
-                             f"Дата: {report.date}"
-                             f" {report.text }")
+    reports = (db_session.query(PerformanceReport)
+               .filter(PerformanceReport.object_name == int(message[2])))
+
+    for report in reports:
+        await bot.send_message(chat_id=call.from_user.id,
+                               text=f"Отчет по объекту {object.name} \n"
+                                    f"Дата: {report.date} \n"
+                                    f" {report.text}",
+                               reply_to_message_id=id.message_id)
