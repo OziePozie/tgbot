@@ -87,8 +87,8 @@ async def quit(message: types.Message):
         await message.answer("Выполнено", reply_markup=main())
         await bot.send_message(chat_id=-4104881167, text=text)
 
-        db_session.query(Travel_orders).filter(Travel_orders.from_report == from_report).delete()
-        db_session.commit()
+        # db_session.query(Travel_orders).filter(Travel_orders.from_report == from_report).delete()
+        # db_session.commit()
 
     else:
         await message.answer("Попробуйте позже", reply_markup=main())

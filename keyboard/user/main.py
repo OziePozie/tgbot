@@ -3,7 +3,7 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeybo
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from config import db_session
 from aiogram.filters.callback_data import CallbackData
-from data.models import Object, Workers, Travel_orders, Auto
+from data.models import Object, Workers, Travel_orders, Auto, PerformanceReport
 
 
 def main():
@@ -118,7 +118,7 @@ def worker_callback_markup():
     for d in data:
         builder.button(
             text=d[1], callback_data=CallbackWorkersData(data=d[1], action=str(d[0]))
-            )
+        )
 
     builder.adjust(1)
     return builder.as_markup()
@@ -152,13 +152,16 @@ class CallbackDateOrdersData(CallbackData, prefix="orders_data"):
     data: str
 
 
-def date_of_work():
+def date_of_work(user_id):
     builder = InlineKeyboardBuilder()
-    date_from_db = db_session.query(Travel_orders.date_from, Travel_orders.date_to).all()
-    for date in date_from_db:
+    date_from_db = db_session.query(Travel_orders).filter(Travel_orders.from_report == int(user_id)).first()
+    check_send_order = db_session.query(PerformanceReport).filter(PerformanceReport.user_id == user_id).first()
+    current_date = datetime.now().date().strftime("%d.%m.%Y")
+    if not check_send_order or (current_date == date_from_db.date_from and check_send_order.is_sendReport is False):
         builder.button(
-            text=f"{date[0]} - {date[1]}", callback_data=CallbackDateOrdersData(action=f"{date[0]} - {date[1]}",
-                                                                                data=f"{date[0]} - {date[1]}")
+            text=f"{current_date}",
+            callback_data=CallbackDateOrdersData(action=f"{str(date_from_db.date_from)}",
+                                                 data=f"{str(date_from_db.date_from)}")
         )
     builder.adjust(1)
     return builder.as_markup()
@@ -176,6 +179,6 @@ def workers_list_callback_markup():
     for d in data:
         builder.button(
             text=d[1], callback_data=CallbackWorkersListData(data=d[1], action=str(d[0]))
-            )
+        )
     builder.adjust(1)
     return builder.as_markup()

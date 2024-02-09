@@ -95,8 +95,10 @@ class PerformanceReport(Base):
     __tablename__ = 'performance_report'
 
     id = Column(Integer, primary_key=True)
+    user_id = Column(Integer)
     object_name = Column(String)
     date = Column(String)
     text = Column(String)
     photo_video = Column(String)
+    is_sendReport = Column(Boolean, default=False)
 
