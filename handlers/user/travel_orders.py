@@ -41,18 +41,32 @@ async def fil_date(message: types.Message, state: FSMContext):
 @router.message(TravelOrdersReport.worker_date_to)
 async def fil_date_to(message: types.Message, state: FSMContext):
     await state.update_data(worker_date_to=message.text)
+    user_id = int(message.from_user.id)
+    check_data = db_session.query(Travel_orders).filter(Travel_orders.from_report == user_id).first()
     data = await state.get_data()
     try:
-        new_worker = Travel_orders(fio=data['worker_name'],
-                                   date_from=data['worker_date_is'],
-                                   date_to=data['worker_date_to'],
-                                   from_report=message.from_user.id,
-                                   is_order=True,
-                                   object_name=data['object_name'])
-        db_session.add(new_worker)
-        db_session.commit()
-        await state.clear()
-        await message.answer(f"Пользователь {data['worker_name']} добавлен в отчет", reply_markup=add_person())
+        if not check_data:
+            new_worker = Travel_orders(fio=data['worker_name'],
+                                       date_from=data['worker_date_is'],
+                                       date_to=data['worker_date_to'],
+                                       from_report=message.from_user.id,
+                                       is_order=True,
+                                       object_name=data['object_name'])
+            db_session.add(new_worker)
+            db_session.commit()
+            await state.clear()
+            await message.answer(f"Пользователь {data['worker_name']} добавлен в отчет", reply_markup=add_person())
+        else:
+            new_worker = Travel_orders(fio=data['worker_name'],
+                                       date_from=data['worker_date_is'],
+                                       date_to=data['worker_date_to'],
+                                       from_report=message.from_user.id,
+                                       is_order=True,
+                                       object_name=str(check_data.object_name))
+            db_session.add(new_worker)
+            db_session.commit()
+            await state.clear()
+            await message.answer(f"Пользователь {data['worker_name']} добавлен в отчет", reply_markup=add_person())
     except ValueError as e:
         await message.answer("Попробуйте заново!")
         await state.clear()
@@ -61,7 +75,7 @@ async def fil_date_to(message: types.Message, state: FSMContext):
 @router.message(F.text == "Еще добавить")
 async def add_person_any(message: types.Message, state: FSMContext):
     await message.answer("Выбор Ф.И.О. членов бригады", reply_markup=performance_report_markup())
-    await state.set_state(TravelOrdersReport.object_name)
+    await state.set_state(TravelOrdersReport.worker_name)
 
 
 @router.message(F.text == 'Закончить')
@@ -70,7 +84,8 @@ async def quit(message: types.Message):
     total_days = 0
     object_id = db_session.query(Travel_orders.object_name).filter(Travel_orders.from_report == from_report).first()
     object_name = db_session.query(Object).filter(Object.id == object_id.object_name).first()
-    text = f"Объект: {str(object_name.name)}\n"
+    text = f"Объект: {str(object_name.name)}\n" \
+           f"Прошу перевести командировочные:\n"
     users = db_session.query\
         (Travel_orders.fio, Travel_orders.date_from, Travel_orders.date_to, Travel_orders.object_name).filter\
         (Travel_orders.from_report == from_report)

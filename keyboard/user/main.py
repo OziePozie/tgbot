@@ -61,7 +61,7 @@ def workers_callback_markup():
 def date_from():
     buttons = []
     now = datetime.now()
-    for i in range(10):
+    for i in range(11):
         date = now + timedelta(days=i)
         date_str = date.strftime("%d.%m.%Y")
         button = [KeyboardButton(text=date_str)]
@@ -155,14 +155,19 @@ class CallbackDateOrdersData(CallbackData, prefix="orders_data"):
 def date_of_work(user_id):
     builder = InlineKeyboardBuilder()
     date_from_db = db_session.query(Travel_orders).filter(Travel_orders.from_report == int(user_id)).first()
-    check_send_order = db_session.query(PerformanceReport).filter(PerformanceReport.user_id == user_id).first()
+    # check_send_order = db_session.query(PerformanceReport).filter(PerformanceReport.user_id == user_id).first()
     current_date = datetime.now().date().strftime("%d.%m.%Y")
-    if not check_send_order or (current_date == date_from_db.date_from and check_send_order.is_sendReport is False):
-        builder.button(
-            text=f"{current_date}",
-            callback_data=CallbackDateOrdersData(action=f"{str(date_from_db.date_from)}",
-                                                 data=f"{str(date_from_db.date_from)}")
-        )
+
+    if date_from_db:
+        date_from = datetime.strptime(date_from_db.date_from, "%d.%m.%Y")
+        date_to = datetime.strptime(date_from_db.date_to, "%d.%m.%Y")
+
+        if date_from < date_to:
+            builder.button(
+                text=f"{current_date}",
+                callback_data=CallbackDateOrdersData(action=f"{str(date_from_db.date_from)}",
+                                                     data=f"{str(date_from_db.date_from)}")
+            )
     builder.adjust(1)
     return builder.as_markup()
 

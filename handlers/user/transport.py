@@ -95,16 +95,19 @@ async def check_probeg(message: types.Message, state: FSMContext):
             db_session.add(transport)
             db_session.commit()
             await message.answer("Принято!", reply_markup=main())
-            await bot.send_message(chat_id=-4104881167,
+            chat_id = db_session.query(Auto).filter(Auto.name == str(data['auto'])).first()
+            await bot.send_message(chat_id=int(chat_id.tg_link),
                                    text=f"«Дата: {data['date_from']} - Пробег: {data['probeg']} км»")
-            await bot.send_message(chat_id=-4104881167, text=f"Дата выезда {data['date_from']}; \n"
+            await bot.send_message(chat_id=int(chat_id.tg_link), text=f"Дата выезда {data['date_from']}; \n"
                                                              f"Маршрут г. Энгельс Саратовская обл. – н.п. {data['city']};\n"
                                                              f"Расстояние {int(data['km'])} км;\n"
                                                              f"Стоимость перевозки, руб: {int(data['km']) * 40}")
             await state.clear()
         elif check_priezd.priezd is False and check_priezd.probeg_vyezd:
-            await bot.send_message(chat_id=-4104881167,
+            chat_id = db_session.query(Auto).filter(Auto.name == str(data['auto'])).first()
+            await bot.send_message(chat_id=int(chat_id.tg_link),
                                    text=f"«Дата: {data['date_from']} - Пробег: {data['probeg']} км»")
+            await state.clear()
         elif check_priezd.priezd is True:
             user = db_session.query(Transports).filter(Transports.master_id == str(message.from_user.id)).first()
             user.probeg_prized = int(message.text)
@@ -124,10 +127,12 @@ async def check_probeg(message: types.Message, state: FSMContext):
                 if object_to_update:
                     object_to_update.total_fuel += float(obshaya_raznica)
                     db_session.commit()
-                    await bot.send_message(chat_id=-4104881167, text=f"Дата приезда {current_date}; \n"
+                    chat_id = db_session.query(Auto).filter(Auto.name == str(data['auto'])).first()
+                    await bot.send_message(chat_id=int(chat_id.tg_link), text=f"Дата приезда {current_date}; \n"
                                                                      f"Маршрут г. Энгельс Саратовская обл. – н.п. {user.city};\n"
                                                                      f"Расстояние {int(user.km)} км;\n"
                                                                      f"Стоимость перевозки, руб: {int(user.km) * 40}")
+                    await state.clear()
                     await message.answer("Принято!", reply_markup=main())
             else:
                 probeg = db_session.query(Transports.probeg_vyezd, Transports.probeg_prized,
@@ -139,12 +144,13 @@ async def check_probeg(message: types.Message, state: FSMContext):
                 if object_to_update:
                     object_to_update.total_fuel += float(obshaya_raznica)
                     db_session.commit()
-
-                    await bot.send_message(chat_id=-4104881167, text=f"Дата приезда {current_date}; \n"
+                    chat_id = db_session.query(Auto).filter(Auto.name == str(data['auto'])).first()
+                    await bot.send_message(chat_id=int(chat_id.tg_link), text=f"Дата приезда {current_date}; \n"
                                                                      f"Маршрут г. Энгельс Саратовская обл. – н.п. {user.city};\n"
                                                                      f"Расстояние {int(user.km)} км;\n"
                                                                      f"Стоимость перевозки, руб: {int(user.km) * 40}")
                     await message.answer("Принято!", reply_markup=main())
+                    await state.clear()
     except Exception as ex:
         await message.answer(f"Ошибка при добавлении! Попробуйте снова {ex}", reply_markup=main())
         await state.clear()
