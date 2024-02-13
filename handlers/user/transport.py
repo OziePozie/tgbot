@@ -96,17 +96,28 @@ async def check_probeg(message: types.Message, state: FSMContext):
             db_session.commit()
             await message.answer("Принято!", reply_markup=main())
             chat_id = db_session.query(Auto).filter(Auto.name == str(data['auto'])).first()
-            await bot.send_message(chat_id=int(chat_id.tg_link),
-                                   text=f"«Дата: {data['date_from']} - Пробег: {data['probeg']} км»")
+            if chat_id.isOOO is False:
+                await bot.send_message(chat_id=-4113562102, text=f"Дата выезда {data['date_from']}; \n"
+                                                                 f"Маршрут г. Энгельс Саратовская обл. – н.п. {data['city']};\n"
+                                                                 f"Расстояние {int(data['km'])} км;\n"
+                                                                 f"Стоимость перевозки, руб: {int(data['km']) * 40}")
             await bot.send_message(chat_id=int(chat_id.tg_link), text=f"Дата выезда {data['date_from']}; \n"
                                                              f"Маршрут г. Энгельс Саратовская обл. – н.п. {data['city']};\n"
                                                              f"Расстояние {int(data['km'])} км;\n"
-                                                             f"Стоимость перевозки, руб: {int(data['km']) * 40}")
+                                                            )
+            await bot.send_message(chat_id=int(chat_id.tg_link),
+                                   text=f"Выезд с базы"
+                                        f"«Дата: {data['date_from']} - Пробег: {data['probeg']} км»\n"
+                                        f"Мастер: {data['master']}\n"
+                                        f"Объект: {data['object_name']}")
             await state.clear()
         elif check_priezd.priezd is False and check_priezd.probeg_vyezd:
             chat_id = db_session.query(Auto).filter(Auto.name == str(data['auto'])).first()
             await bot.send_message(chat_id=int(chat_id.tg_link),
-                                   text=f"«Дата: {data['date_from']} - Пробег: {data['probeg']} км»")
+                                   text=f"Выезд с базы"
+                                        f"«Дата: {data['date_from']} - Пробег: {data['probeg']} км»\n"
+                                        f"Мастер: {data['master']}\n"
+                                        f"Объект: {data['object_name']}")
             await state.clear()
         elif check_priezd.priezd is True:
             user = db_session.query(Transports).filter(Transports.master_id == str(message.from_user.id)).first()
@@ -114,7 +125,7 @@ async def check_probeg(message: types.Message, state: FSMContext):
             db_session.commit()
             auto_name = db_session.query(Transports.auto).filter(
                 Transports.master_id == int(message.from_user.id)).first()
-            get_heavy = db_session.query(Auto.isHeavy).filter(Auto.name == str(auto_name.auto)).first()
+            get_heavy = db_session.query(Auto.isHeavy, Auto.isOOO).filter(Auto.name == str(auto_name.auto)).first()
             current_date = datetime.now().date()
             user = db_session.query(Transports).filter(Transports.master_id == str(message.from_user.id)).first()
             if get_heavy[0] is True:
@@ -128,12 +139,24 @@ async def check_probeg(message: types.Message, state: FSMContext):
                     object_to_update.total_fuel += float(obshaya_raznica)
                     db_session.commit()
                     chat_id = db_session.query(Auto).filter(Auto.name == str(data['auto'])).first()
-                    await bot.send_message(chat_id=int(chat_id.tg_link), text=f"Дата приезда {current_date}; \n"
-                                                                     f"Маршрут г. Энгельс Саратовская обл. – н.п. {user.city};\n"
-                                                                     f"Расстояние {int(user.km)} км;\n"
-                                                                     f"Стоимость перевозки, руб: {int(user.km) * 40}")
-                    await state.clear()
-                    await message.answer("Принято!", reply_markup=main())
+                    if get_heavy[1] is False:
+                        await bot.send_message(chat_id=-4113562102, text=f"Дата приезда {current_date}; \n"
+                                                                         f"Маршрут г. Энгельс Саратовская обл. – н.п. {user.city};\n"
+                                                                         f"Расстояние {int(user.km)} км;\n"
+                                                                         f"Стоимость перевозки, руб: {int(user.km) * 40}")
+                        await bot.send_message(chat_id=int(chat_id.tg_link), text=f"Дата приезда {current_date}; \n"
+                                                                         f"Маршрут г. Энгельс Саратовская обл. – н.п. {user.city};\n"
+                                                                         f"Расстояние {int(user.km)} км;\n"
+                                                                         )
+                        await state.clear()
+                        await message.answer("Принято!", reply_markup=main())
+                    else:
+                        await bot.send_message(chat_id=-4113562102, text=f"Дата приезда {current_date}; \n"
+                                                                         f"Маршрут г. Энгельс Саратовская обл. – н.п. {user.city};\n"
+                                                                         f"Расстояние {int(user.km)} км;\n"
+                                                                         f"Стоимость перевозки, руб: {int(user.km) * 40}")
+                        await state.clear()
+                        await message.answer("Принято!", reply_markup=main())
             else:
                 probeg = db_session.query(Transports.probeg_vyezd, Transports.probeg_prized,
                                           Transports.object_name).filter(
@@ -145,12 +168,24 @@ async def check_probeg(message: types.Message, state: FSMContext):
                     object_to_update.total_fuel += float(obshaya_raznica)
                     db_session.commit()
                     chat_id = db_session.query(Auto).filter(Auto.name == str(data['auto'])).first()
-                    await bot.send_message(chat_id=int(chat_id.tg_link), text=f"Дата приезда {current_date}; \n"
-                                                                     f"Маршрут г. Энгельс Саратовская обл. – н.п. {user.city};\n"
-                                                                     f"Расстояние {int(user.km)} км;\n"
-                                                                     f"Стоимость перевозки, руб: {int(user.km) * 40}")
-                    await message.answer("Принято!", reply_markup=main())
-                    await state.clear()
+                    if get_heavy[1] is False:
+                        await bot.send_message(chat_id=-4113562102, text=f"Дата приезда {current_date}; \n"
+                                                                         f"Маршрут г. Энгельс Саратовская обл. – н.п. {user.city};\n"
+                                                                         f"Расстояние {int(user.km)} км;\n"
+                                                                         f"Стоимость перевозки, руб: {int(user.km) * 40}")
+                        await bot.send_message(chat_id=int(chat_id.tg_link), text=f"Дата приезда {current_date}; \n"
+                                                                                  f"Маршрут г. Энгельс Саратовская обл. – н.п. {user.city};\n"
+                                                                                  f"Расстояние {int(user.km)} км;\n"
+                                                                                 )
+                        await state.clear()
+                        await message.answer("Принято!", reply_markup=main())
+                    else:
+                        await bot.send_message(chat_id=-4113562102, text=f"Дата приезда {current_date}; \n"
+                                                                         f"Маршрут г. Энгельс Саратовская обл. – н.п. {user.city};\n"
+                                                                         f"Расстояние {int(user.km)} км;\n"
+                                                                         f"Стоимость перевозки, руб: {int(user.km) * 40}")
+                        await state.clear()
+                        await message.answer("Принято!", reply_markup=main())
     except Exception as ex:
         await message.answer(f"Ошибка при добавлении! Попробуйте снова {ex}", reply_markup=main())
         await state.clear()

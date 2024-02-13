@@ -59,7 +59,7 @@ async def autocran_date(message: types.Message, state: FSMContext):
     if object_to_update:
         object_to_update.total_autocran += float(data['price'])
         db_session.commit()
-        await bot.send_message(chat_id=-4104881167, text=f"Прошу перевести {data['price']} руб за автокран \n"
+        await bot.send_message(chat_id=-4169136765, text=f"Прошу перевести {data['price']} руб за автокран \n"
                                                          f"Обьект: {str(object_name.name)} \n"
                                                          f"по номеру {data['cart_number']}\n"
                                                          f"Ф.И.О. получателя: {data['fio_cart']}")

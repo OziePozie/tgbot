@@ -21,10 +21,13 @@ async def list_work(call: types.CallbackQuery, state: FSMContext):
 async def filter_object(call: types.CallbackQuery, callback_data: CallbackObjectData, state: FSMContext):
     await state.update_data(object=callback_data.action)
     check_order = db_session.query(Travel_orders).filter(Travel_orders.from_report == int(call.from_user.id)).first()
+    if not check_order:
+        await call.message.edit_text("Для начало закажите отчет", reply_markup=main())
+        await state.clear()
     current_date = datetime.now().date().strftime("%d.%m.%Y")
     current_date_obj = datetime.strptime(current_date, "%d.%m.%Y")
     date_from = datetime.strptime(check_order.date_from, "%d.%m.%Y")
-    if not check_order or current_date_obj > date_from:
+    if current_date_obj > date_from:
         await call.message.edit_text("Для начало закажите отчет", reply_markup=main())
         await state.clear()
     else:
@@ -77,10 +80,11 @@ async def check_photo_video(message: types.Message, state: FSMContext):
     db_session.commit()
 
     await message.answer("Выполнено!", reply_markup=main())
-    a = await bot.send_photo(chat_id=-4104881167, photo=data['photo_video'])
     object_name = db_session.query(Object).filter(Object.id == int(data['object'])).first()
+    chat_id = db_session.query(Object).filter(Object.name == str(object_name.name)).first()
+    a = await bot.send_photo(chat_id=int(chat_id.tg_link), photo=data['photo_video'])
 
-    await bot.send_message(chat_id=-4104881167, text=f"Отчет о работе\n"
+    await bot.send_message(chat_id=int(chat_id.tg_link), text=f"Отчет о работе\n"
                                                      f"Объект: {object_name.name}\n"
                                                      f"Период: {data['date']}\n"
                                                      f"Сообщение: {data['text']}\n",

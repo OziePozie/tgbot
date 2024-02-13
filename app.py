@@ -27,6 +27,4 @@ async def main():
 
 
 if __name__ == "__main__":
-    print(datetime.now().date().strftime("%d.%m.%Y"))
-
     asyncio.run(main())

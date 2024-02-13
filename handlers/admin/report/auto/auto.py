@@ -17,6 +17,7 @@ router = Router()
 async def workers(call: types.CallbackQuery):
     keyboard = [
         [InlineKeyboardButton(text="Добавить", callback_data="auto_add")],
+        [InlineKeyboardButton(text="Удалить", callback_data="auto_delete")],
         [InlineKeyboardButton(text="Назад", callback_data="back_main")]
     ]
 
@@ -107,8 +108,42 @@ async def add_tg_to_auto(message: types.Message, state: FSMContext):
         [InlineKeyboardButton(text=f"Вернуться на главную", callback_data="back_main")]
     ]
     markup = InlineKeyboardMarkup(inline_keyboard=keyboard)
-
+    await state.clear()
     await message.reply(text="Успешное добавление. Выберите действие",
                         reply_markup=markup)
 
+@router.callback_query(F.data.startswith('auto_delete'))
+async def generate_object_to_delete(call: types.CallbackQuery, state: FSMContext):
+    message_data = call.data.split('_')
+    print(message_data)
 
+    markup = InlineKeyboardBuilder()
+    objects = (db_session.query(Auto)
+               .order_by(Auto.name).all())
+    print(objects)
+    for object in objects:
+        markup.button(
+            text=f"{object.name}",
+            callback_data=f"au_delete_{object.id}"
+        )
+
+    markup.button(text="Назад", callback_data="back_main")
+    markup.adjust(1)
+
+    await call.message.edit_text("Выберите авто",
+                                 reply_markup=markup.as_markup())
+
+
+@router.callback_query(F.data.startswith('au_delete'))
+async def delete_object_to_delete(call: types.CallbackQuery):
+    message_data = call.data.split('_')
+    id = message_data[2]
+    db_session.query(Auto).filter(Auto.id == id).delete()
+    db_session.commit()
+    keyboard = [
+        [InlineKeyboardButton(text=f"Вернуться на главную", callback_data="back_main")]
+    ]
+    markup = InlineKeyboardMarkup(inline_keyboard=keyboard)
+
+    await call.message.edit_text("Успешное удаление. Выберите действие",
+                                 reply_markup=markup)
