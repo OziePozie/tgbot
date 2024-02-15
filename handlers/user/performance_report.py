@@ -20,14 +20,14 @@ async def list_work(call: types.CallbackQuery, state: FSMContext):
 @router.callback_query(CallbackObjectData.filter(), PerformanceReport.object)
 async def filter_object(call: types.CallbackQuery, callback_data: CallbackObjectData, state: FSMContext):
     await state.update_data(object=callback_data.action)
-    check_order = db_session.query(Travel_orders).filter(Travel_orders.from_report == int(call.from_user.id)).first()
+    check_order = db_session.query(Travel_orders).filter(Travel_orders.from_report == int(call.from_user.id)).all()
     if not check_order:
         await call.message.edit_text("Для начало закажите отчет", reply_markup=main())
         await state.clear()
     current_date = datetime.now().date().strftime("%d.%m.%Y")
     current_date_obj = datetime.strptime(current_date, "%d.%m.%Y")
-    date_from = datetime.strptime(check_order.date_from, "%d.%m.%Y")
-    if current_date_obj > date_from:
+    date_to= datetime.strptime(check_order.date_to, "%d.%m.%Y")
+    if current_date_obj > date_to:
         await call.message.edit_text("Для начало закажите отчет", reply_markup=main())
         await state.clear()
     else:

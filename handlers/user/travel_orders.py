@@ -106,8 +106,14 @@ async def quit(message: types.Message):
         total_sum = total_days * 700
         object_to_update.total_travelers += float(total_sum)
         db_session.commit()
+        check_send_order = db_session.query(Travel_orders).filter(Travel_orders.from_report == from_report).all()
+        if check_send_order:
+            for i in check_send_order:
+                i.is_order = True
+                db_session.commit()
         await message.answer("Выполнено", reply_markup=main())
-        await bot.send_message(chat_id=-4156766513, text=text)
+        await bot.send_message(chat_id=-4104881167, text=text)
+        # await bot.send_message(chat_id=-4156766513, text=text)
 
         # db_session.query(Travel_orders).filter(Travel_orders.from_report == from_report).delete()
         # db_session.commit()

@@ -109,7 +109,7 @@ async def media_report(call: CallbackQuery):
 
 
 
-@router.callback_query(F.data.startswith('ks_6_report'))
+@router.callback_query(F.data.startswith('ks-6_report'))
 async def ks_6_report(call: CallbackQuery):
     message = call.data.split('_')
     object = db_session.query(Object).filter(Object.id == int(message[2])).first()
