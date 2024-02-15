@@ -149,6 +149,8 @@ async def check_probeg(message: types.Message, state: FSMContext):
                                                                          f"Расстояние {int(user.km)} км;\n"
                                                                          )
                         await state.clear()
+                        db_session.query(Transports).filter(Transports.master_id == int(message.from_user.id)).delete()
+                        db_session.commit()
                         await message.answer("Принято!", reply_markup=main())
                     else:
                         await bot.send_message(chat_id=-4113562102, text=f"Дата приезда {current_date}; \n"
@@ -156,6 +158,8 @@ async def check_probeg(message: types.Message, state: FSMContext):
                                                                          f"Расстояние {int(user.km)} км;\n"
                                                                          f"Стоимость перевозки, руб: {int(user.km) * 40}")
                         await state.clear()
+                        db_session.query(Transports).filter(Transports.master_id == int(message.from_user.id)).delete()
+                        db_session.commit()
                         await message.answer("Принято!", reply_markup=main())
             else:
                 probeg = db_session.query(Transports.probeg_vyezd, Transports.probeg_prized,
@@ -177,6 +181,8 @@ async def check_probeg(message: types.Message, state: FSMContext):
                                                                                   f"Маршрут г. Энгельс Саратовская обл. – н.п. {user.city};\n"
                                                                                   f"Расстояние {int(user.km)} км;\n"
                                                                                  )
+                        db_session.query(Transports).filter(Transports.master_id == int(message.from_user.id)).delete()
+                        db_session.commit()
                         await state.clear()
                         await message.answer("Принято!", reply_markup=main())
                     else:
@@ -185,6 +191,8 @@ async def check_probeg(message: types.Message, state: FSMContext):
                                                                          f"Расстояние {int(user.km)} км;\n"
                                                                          f"Стоимость перевозки, руб: {int(user.km) * 40}")
                         await state.clear()
+                        db_session.query(Transports).filter(Transports.master_id == int(message.from_user.id)).delete()
+                        db_session.commit()
                         await message.answer("Принято!", reply_markup=main())
     except Exception as ex:
         await message.answer(f"Ошибка при добавлении! Попробуйте снова {ex}", reply_markup=main())

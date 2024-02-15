@@ -112,8 +112,8 @@ async def quit(message: types.Message):
                 i.is_order = True
                 db_session.commit()
         await message.answer("Выполнено", reply_markup=main())
-        await bot.send_message(chat_id=-4104881167, text=text)
-        # await bot.send_message(chat_id=-4156766513, text=text)
+        # await bot.send_message(chat_id=-4104881167, text=text)
+        await bot.send_message(chat_id=-4156766513, text=text)
 
         # db_session.query(Travel_orders).filter(Travel_orders.from_report == from_report).delete()
         # db_session.commit()
