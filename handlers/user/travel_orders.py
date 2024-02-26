@@ -97,7 +97,7 @@ async def quit(message: types.Message):
     for user in users:
         if user[4] is False:
             delta = (datetime.strptime(user.date_to, '%d.%m.%Y') - datetime.strptime(user.date_from, '%d.%m.%Y')).days
-            text += f"{user[0]} – {delta} дней; \n"
+            text += f"{user[0]} – {delta} дней - {delta * 700} руб; \n"
             total_days += delta
             # user.is_order = True
     text = text[:-2] + "\n"
