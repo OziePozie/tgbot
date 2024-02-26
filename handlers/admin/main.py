@@ -2,12 +2,12 @@ from aiogram.fsm import state
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
-
+from context.admin.login import AdminLogin
 from aiogram import Router, F, types
 from aiogram.filters import Command
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from config import db_session
+from config import db_session, admin_login, admin_password
 from data.models import Workers, WorkType
 from handlers.admin.report.report import report_router
 from handlers.admin.list.list import router as list_router
@@ -28,8 +28,33 @@ def main():
 
 
 @router.message(Command('admin'))
-async def admin(message: types.Message):
-    await message.answer("Добро пожаловать", reply_markup=main())
+async def admin(message: types.Message, state: FSMContext):
+    await message.answer("Логин:")
+    await state.set_state(AdminLogin.login)
+
+
+@router.message(AdminLogin.login)
+async def set_login(message: types.Message, state: FSMContext):
+    if message.text in admin_login:
+        await message.answer("Пароль:")
+        await state.set_state(AdminLogin.password)
+
+
+@router.message(lambda message: message.text is not admin_login, AdminLogin.login)
+async def log_pass_invalid(message: types.Message):
+    await message.answer("Неверный логин")
+
+
+@router.message(AdminLogin.password)
+async def set_password(message: types.Message, state: FSMContext):
+    if message.text in admin_password:
+        await message.answer("Добро пожаловать", reply_markup=main())
+        await state.clear()
+
+
+@router.message(lambda message: message.text is not admin_password, AdminLogin.password)
+async def _password(message: types.Message):
+    await message.answer("Неверный пароль")
 
 
 @router.callback_query(F.data == "back_main")

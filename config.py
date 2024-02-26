@@ -8,6 +8,8 @@ from data.models import Base
 
 load_dotenv()
 
+admin_login = os.getenv("ADMIN_LOGIN")
+admin_password = os.getenv("ADMIN_PASSWORD")
 
 TOKEN = os.getenv("TOKEN")
 bot = Bot(token=TOKEN)
