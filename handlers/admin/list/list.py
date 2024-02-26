@@ -98,15 +98,13 @@ async def media_report(call: CallbackQuery):
         try:
             id = await bot.send_photo(chat_id=call.from_user.id,
                                       photo=report.photo_video)
+            await bot.send_message(chat_id=call.from_user.id,
+                                   text=f"Отчет по объекту {object.name} \n"
+                                        f"Дата: {report.date} \n"
+                                        f"{report.text}",
+                                   reply_to_message_id=id.message_id)
         except Exception as e:
             pass
-        await bot.send_message(chat_id=call.from_user.id,
-                               text=f"Отчет по объекту {object.name} \n"
-                                f"Дата: {report.date} \n"
-                                f"{report.text}",
-                               reply_to_message_id=id.message_id)
-
-
 
 
 @router.callback_query(F.data.startswith('ks-6_report'))
@@ -120,5 +118,4 @@ async def ks_6_report(call: CallbackQuery):
         await bot.send_message(chat_id=call.from_user.id,
                                text=f"Отчет по объекту {object.name} \n"
                                     f"Дата: {report.date} \n"
-                                    f" {report.text}",
-                               reply_to_message_id=id.message_id)
+                                    f" {report.text}")

@@ -16,7 +16,9 @@ async def main():
     await bot.delete_webhook(drop_pending_updates=True)
 
     async def start_scheduler():
-        await scheduler_per_day()
+        # await scheduler_per_day()
+        # print("Starting scheduler per day")
+        print("Starting scheduler...")
         await scheduler()
 
     asyncio.create_task(start_scheduler())

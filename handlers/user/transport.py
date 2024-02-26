@@ -60,7 +60,7 @@ async def transport_vyezd(call: types.CallbackQuery, state: FSMContext):
 @router.callback_query(CallbackDateFromData.filter(), Transport.date_from)
 async def check_date(call: types.CallbackQuery, state: FSMContext, callback_data: CallbackDateFromData):
     await state.update_data(date_from=callback_data.data)
-    await call.message.edit_text("Введите пробега")
+    await call.message.edit_text("Введите пробег")
     await state.set_state(Transport.probeg)
 
 
@@ -101,10 +101,10 @@ async def check_probeg(message: types.Message, state: FSMContext):
                                                                  f"Маршрут г. Энгельс Саратовская обл. – н.п. {data['city']};\n"
                                                                  f"Расстояние {int(data['km'])} км;\n"
                                                                  f"Стоимость перевозки, руб: {int(data['km']) * 40}")
-            await bot.send_message(chat_id=int(chat_id.tg_link), text=f"Дата выезда {data['date_from']}; \n"
-                                                             f"Маршрут г. Энгельс Саратовская обл. – н.п. {data['city']};\n"
-                                                             f"Расстояние {int(data['km'])} км;\n"
-                                                            )
+            # await bot.send_message(chat_id=int(chat_id.tg_link), text=f"Дата выезда {data['date_from']}; \n"
+            #                                                  f"Маршрут г. Энгельс Саратовская обл. – н.п. {data['city']};\n"
+            #                                                  f"Расстояние {int(data['km'])} км;\n"
+            #                                                 )
             await bot.send_message(chat_id=int(chat_id.tg_link),
                                    text=f"Выезд с базы"
                                         f"«Дата: {data['date_from']} - Пробег: {data['probeg']} км»\n"

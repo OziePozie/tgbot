@@ -1,4 +1,6 @@
-from aiogram import Router
+from aiogram import types
+from keyboard.user.main import main
+from aiogram import Router, F
 from .autocran import router as autocran_router
 from .main import router as main_router
 from .performance_report import router as performance_report_router
@@ -16,3 +18,8 @@ user_router.include_router(transport_router)
 user_router.include_router(travel_orders_router)
 user_router.include_router(living_router)
 user_router.include_router(other_expenses_router)
+
+
+@user_router.callback_query(F.data == "back_menu")
+async def back(call: types.CallbackQuery):
+    await call.message.edit_text("Главное меню", reply_markup=main())

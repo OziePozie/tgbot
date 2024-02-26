@@ -31,6 +31,7 @@ def performance_report_markup():
         builder.button(
             text=d[1], callback_data=CallbackObjectData(data=d[1], action=str(d[0]))
         )
+    builder.button(text="В главное меню", callback_data="back_menu")
     builder.adjust(1)
     return builder.as_markup()
 
@@ -185,5 +186,7 @@ def workers_list_callback_markup():
         builder.button(
             text=d[1], callback_data=CallbackWorkersListData(data=d[1], action=str(d[0]))
         )
+
+    builder.button(text="В главное меню", callback_data="back_menu")
     builder.adjust(1)
     return builder.as_markup()
