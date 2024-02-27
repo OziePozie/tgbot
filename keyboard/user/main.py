@@ -3,12 +3,13 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeybo
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from config import db_session
 from aiogram.filters.callback_data import CallbackData
-from data.models import Object, Workers, Travel_orders, Auto, PerformanceReport
+from data.models import Object, Workers, Travel_orders, Auto, PerformanceReport, Transports
 
 
 def main():
     keyboard = [
         [InlineKeyboardButton(text="ОТЧЕТ о работе", callback_data="performance_report")],
+        [InlineKeyboardButton(text="Добавить промежуточный пробег", callback_data="update_probeg")],
         [InlineKeyboardButton(text="АВТОКРАН", callback_data="autocran")],
         [InlineKeyboardButton(text="Прочие расходы", callback_data="other_expenses")],
         [InlineKeyboardButton(text="ПРОЖИВАНИЕ", callback_data="living")],
@@ -190,3 +191,22 @@ def workers_list_callback_markup():
     builder.button(text="В главное меню", callback_data="back_menu")
     builder.adjust(1)
     return builder.as_markup()
+
+
+class CallbackTransportList(CallbackData, prefix="transport"):
+    data: str
+    action: str
+
+
+def transport_master_list():
+    builder = InlineKeyboardBuilder()
+    data = db_session.query(Transports.id, Transports.master).all()
+
+    for d in data:
+        builder.button(
+            text=d[1], callback_data=CallbackTransportList(data=d[1], action=str(d[0]))
+        )
+    builder.button(text="В главное меню", callback_data="back_menu")
+    builder.adjust(1)
+    return builder.as_markup()
+

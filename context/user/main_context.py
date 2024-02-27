@@ -52,3 +52,7 @@ class PerformanceReport(StatesGroup):
     photo_video = State()
 
 
+class UpdateKM(StatesGroup):
+    user = State()
+    km = State()
+
