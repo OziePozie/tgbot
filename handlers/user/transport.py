@@ -105,12 +105,12 @@ async def check_probeg(message: types.Message, state: FSMContext):
             #                                                  f"Маршрут г. Энгельс Саратовская обл. – н.п. {data['city']};\n"
             #                                                  f"Расстояние {int(data['km'])} км;\n"
             #                                                 )
-            await bot.send_message(chat_id=int(chat_id.tg_link),
-                                   text=f"Выезд с базы"
-                                        f"«Дата: {data['date_from']} - Пробег: {data['probeg']} км»\n"
-                                        f"Мастер: {data['master']}\n"
-                                        f"Объект: {data['object_name']}")
-            await state.clear()
+            # await bot.send_message(chat_id=int(chat_id.tg_link),
+            #                        text=f"Выезд с базы"
+            #                             f"«Дата: {data['date_from']} - Пробег: {data['probeg']} км»\n"
+            #                             f"Мастер: {data['master']}\n"
+            #                             f"Объект: {data['object_name']}")
+                await state.clear()
         elif check_priezd.priezd is False and check_priezd.probeg_vyezd:
             chat_id = db_session.query(Auto).filter(Auto.name == str(data['auto'])).first()
             await bot.send_message(chat_id=int(chat_id.tg_link),

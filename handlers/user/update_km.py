@@ -2,8 +2,8 @@ from aiogram import types, F, Router
 from aiogram.fsm.context import FSMContext
 from keyboard.user.main import transport_master_list, CallbackTransportList, main
 from context.user.main_context import UpdateKM
-from data.models import Transports
-from config import db_session
+from data.models import Transports, Object, Auto
+from config import db_session, bot
 
 router = Router()
 
@@ -30,6 +30,13 @@ async def update_km(message: types.Message, state: FSMContext):
         master_name.probeg_prized = int(data['km'])
         db_session.commit()
         await message.answer("Принято", reply_markup=main())
+        chat_id = db_session.query(Auto).filter(Auto.name == str(data['auto'])).first()
+        data_trans = db_session.query(Transports).filter(Transports.master_id == str(message.from_user.id)).first()
+        await bot.send_message(chat_id=int(chat_id.tg_link),
+                               text=f"Промежуточный пробег"
+                                    f"«Дата: {data_trans.date_from} - Пробег: {data['km']} км»\n"
+                                    f"Мастер: {data_trans.master}\n"
+                                    f"Объект: {data_trans.object_name}")
         await state.clear()
     except Exception as e:
         await message.answer(f"{e}", reply_markup=main())
