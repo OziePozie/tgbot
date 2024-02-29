@@ -30,8 +30,8 @@ async def update_km(message: types.Message, state: FSMContext):
         master_name.probeg_prized = int(data['km'])
         db_session.commit()
         await message.answer("Принято", reply_markup=main())
-        chat_id = db_session.query(Auto).filter(Auto.name == str(data['auto'])).first()
         data_trans = db_session.query(Transports).filter(Transports.master_id == str(message.from_user.id)).first()
+        chat_id = db_session.query(Auto).filter(Auto.name == str(data_trans.auto)).first()
         await bot.send_message(chat_id=int(chat_id.tg_link),
                                text=f"Промежуточный пробег"
                                     f"«Дата: {data_trans.date_from} - Пробег: {data['km']} км»\n"

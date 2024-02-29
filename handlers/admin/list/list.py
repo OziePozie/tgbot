@@ -79,12 +79,12 @@ async def waste_report(call: CallbackQuery):
 
     await call.message.reply(f"Отчет по объекту {object.name} \n"
                              f"Количество дней {object.createdAt} \n"
-                             f"Командировачные расходы {int(object.total_travelers)} .руб \n"
-                             f"Транспортные расходы {int(object.total_fuel)} .руб \n"
-                             f"Затраты на проживание {int(object.total_living)} .руб \n"
-                             f"Прочие расходы {int(object.total_other_expenses)} .руб \n"
-                             f"Затраты на услуги автокрана {int(object.total_autocran)} .руб \n"
-                             f"Итого {int(sum)} .руб")
+                             f"Командировачные расходы {round(object.total_travelers, 0)} .руб \n"
+                             f"Транспортные расходы {round(object.total_fuel, 0)} .руб \n"
+                             f"Затраты на проживание {round(object.total_living, 0)} .руб \n"
+                             f"Прочие расходы {round(object.total_other_expenses, 0)} .руб \n"
+                             f"Затраты на услуги автокрана {round(object.total_autocran, 0)} .руб \n"
+                             f"Итого {round(sum, 0)} .руб")
 
 
 @router.callback_query(F.data.startswith('media_report'))
