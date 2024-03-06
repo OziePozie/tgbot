@@ -1,5 +1,4 @@
 from datetime import datetime
-
 from aiogram import Router, F, types
 from aiogram.fsm.context import FSMContext
 from context.user.main_context import TravelOrdersReport
@@ -20,7 +19,8 @@ async def order_command(call: types.CallbackQuery, state: FSMContext):
 @router.callback_query(CallbackObjectData.filter(), TravelOrdersReport.object_name)
 async def fil_object(call: types.CallbackQuery, callback_data: CallbackObjectData, state: FSMContext):
     await state.update_data(object_name=callback_data.action)
-    await call.message.edit_text("Выбор Ф.И.О. членов бригады", reply_markup=workers_callback_markup())
+
+    await call.message.edit_text("Выбор Ф.И.О. членов бригады", reply_markup=workers_callback_markup(call.from_user.id))
     await state.set_state(TravelOrdersReport.worker_name)
 
 
@@ -74,7 +74,7 @@ async def fil_date_to(message: types.Message, state: FSMContext):
 
 @router.message(F.text == "Еще добавить")
 async def add_person_any(message: types.Message, state: FSMContext):
-    await message.answer("Выбор Ф.И.О. членов бригады", reply_markup=workers_callback_markup())
+    await message.answer("Выбор Ф.И.О. членов бригады", reply_markup=workers_callback_markup(message.from_user.id))
     await state.set_state(TravelOrdersReport.worker_name)
 
 

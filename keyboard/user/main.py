@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, KeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from config import db_session
+from sqlalchemy.future import select
 from aiogram.filters.callback_data import CallbackData
 from data.models import Object, Workers, Travel_orders, Auto, PerformanceReport, Transports
 
@@ -42,10 +43,20 @@ class CallbackWorkersData(CallbackData, prefix="workers_data"):
     data: str
 
 
-def workers_callback_markup():
+def workers_callback_markup(message_id):
     builder = InlineKeyboardBuilder()
     data = db_session.query(Workers.id, Workers.name).all()
 
+    current_date = datetime.today().strftime('%d.%m.%Y')
+    date_from = db_session.scalars(select(Travel_orders).where(Travel_orders.from_report == message_id))
+
+    if not date_from:
+        pass
+    else:
+        for date in date_from:
+            if current_date == date.date_to:
+                db_session.delete(date)
+                db_session.commit()
     users = {i[0] for i in db_session.query(Travel_orders.fio).all()}
 
     for d in data:
