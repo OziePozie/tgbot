@@ -56,3 +56,6 @@ class UpdateKM(StatesGroup):
     user = State()
     km = State()
 
+
+class UserState(StatesGroup):
+    password = State()

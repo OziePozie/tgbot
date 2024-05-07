@@ -102,3 +102,9 @@ class PerformanceReport(Base):
     photo_video = Column(String)
     is_sendReport = Column(Boolean, default=False)
 
+
+class Auth(Base):
+    __tablename__ = 'auth'
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(String)
