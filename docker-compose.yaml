@@ -1,0 +1,30 @@
+version: "3.9"
+
+networks:
+  mynetwork:
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+    networks:
+      - mynetwork
+
+  starlette_admin:
+    container_name: starlette_admin
+    build:
+      context: .
+      dockerfile: ./Dockerfile_admin
+    ports:
+      - "8000:8000"
+    networks:
+      - mynetwork
+    logging:
+      driver: "none"
+
+volumes:
+  postgres_data:
+  redis_data:
