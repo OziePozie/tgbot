@@ -74,7 +74,7 @@ def workers_callback_markup(message_id):
 def date_from():
     buttons = []
     now = datetime.now()
-    for i in range(11):
+    for i in range(26):
         date = now + timedelta(days=i)
         date_str = date.strftime("%d.%m.%Y")
         button = [KeyboardButton(text=date_str)]
