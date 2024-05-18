@@ -5,6 +5,7 @@ from context.user.main_context import TravelOrdersReport
 from keyboard.user.main import performance_report_markup, CallbackObjectData, \
     CallbackWorkersData, workers_callback_markup, date_from, add_person, main
 from data.models import Travel_orders, Object
+from sqlalchemy import select
 from config import db_session, bot
 
 router = Router()
@@ -12,8 +13,18 @@ router = Router()
 
 @router.callback_query(F.data == "travel_orders")
 async def order_command(call: types.CallbackQuery, state: FSMContext):
-    await call.message.edit_text("Выбор объекта", reply_markup=performance_report_markup())
-    await state.set_state(TravelOrdersReport.object_name)
+    today = datetime.today()
+    order = db_session.scalar(select(Travel_orders).where(Travel_orders.from_report == call.from_user.id))
+    if not order:
+        await call.message.edit_text("Выбор объекта", reply_markup=performance_report_markup())
+        await state.set_state(TravelOrdersReport.object_name)
+    else:
+        date_to = datetime.strptime(order.date_to, '%d.%m.%Y')
+        if today >= date_to:
+            order_from = db_session.scalar(select(Travel_orders).where(Travel_orders.from_report == call.from_user.id))
+            await call.message.edit_text("Это вы?", reply_markup=)
+        else:
+            print('a')
 
 
 @router.callback_query(CallbackObjectData.filter(), TravelOrdersReport.object_name)
